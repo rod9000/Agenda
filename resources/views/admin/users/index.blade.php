@@ -2,7 +2,7 @@
 
 @section('header')
     <div class="flex justify-between items-center">
-        <h2 class="font-semibold text-xl text-amber-800 leading-tight">Usuários</h2>
+        <h2 class="font-semibold text-xl text-brand-800 leading-tight">Usuários</h2>
         <a href="{{ route('admin.users.create') }}" class="btn-pastel-primary">+ Novo Usuário</a>
     </div>
 @endsection
@@ -29,7 +29,7 @@
                         <td>{{ $u->email }}</td>
                         <td>{{ $u->phone ?? '—' }}</td>
                         <td>
-                            <span class="badge-pastel {{ $u->role === 'admin' ? 'bg-amber-100 text-amber-700' : 'bg-stone-100 text-stone-600' }}">
+                            <span class="badge-pastel {{ $u->role === 'admin' ? 'bg-brand-100 text-brand-700' : 'bg-stone-100 text-stone-600' }}">
                                 {{ $u->role === 'admin' ? 'Admin' : 'Atendente' }}
                             </span>
                         </td>
@@ -39,7 +39,7 @@
                             </span>
                         </td>
                         <td class="text-right space-x-2">
-                            <a href="{{ route('admin.users.edit', $u) }}" class="text-amber-600 hover:text-amber-800 font-medium">Editar</a>
+                            <a href="{{ route('admin.users.edit', $u) }}" class="text-brand-600 hover:text-brand-800 font-medium">Editar</a>
                             @if($u->id !== auth()->id())
                             <form method="POST" action="{{ route('admin.users.destroy', $u) }}" class="inline" onsubmit="return confirm('Excluir usuário?')">
                                 @csrf @method('DELETE')
@@ -49,12 +49,12 @@
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="6" class="px-4 py-8 text-center text-amber-400">Nenhum usuário cadastrado.</td></tr>
+                    <tr><td colspan="6" class="px-4 py-8 text-center text-brand-400">Nenhum usuário cadastrado.</td></tr>
                     @endforelse
                 </tbody>
             </table>
 
-            <div class="p-4 border-t border-amber-100">
+            <div class="p-4 border-t border-brand-100">
                 {{ $users->links() }}
             </div>
         </div>

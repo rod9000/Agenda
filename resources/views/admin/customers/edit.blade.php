@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('header')
-    <h2 class="font-semibold text-xl text-amber-800 leading-tight">{{ isset($customer) ? 'Editar Cliente' : 'Novo Cliente' }}</h2>
+    <h2 class="font-semibold text-xl text-brand-800 leading-tight">{{ isset($customer) ? 'Editar Cliente' : 'Novo Cliente' }}</h2>
 @endsection
 
 @section('content')
@@ -13,37 +13,37 @@
                 @if(isset($customer)) @method('PUT') @endif
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-amber-700">Nome Completo</label>
+                    <label class="block text-sm font-medium text-brand-700">Nome Completo</label>
                     <input type="text" name="name" value="{{ old('name', $customer->name ?? '') }}" required class="input-pastel">
                     @error('name') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-amber-700">CPF</label>
+                    <label class="block text-sm font-medium text-brand-700">CPF</label>
                     <input type="text" name="cpf" value="{{ old('cpf', $customer->cpf ?? '') }}" required maxlength="14" class="input-pastel">
                     @error('cpf') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-amber-700">Telefone</label>
+                    <label class="block text-sm font-medium text-brand-700">Telefone</label>
                     <input type="text" name="phone" value="{{ old('phone', $customer->phone ?? '') }}" required maxlength="20" class="input-pastel">
                     @error('phone') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-amber-700">Data de Nascimento</label>
+                    <label class="block text-sm font-medium text-brand-700">Data de Nascimento</label>
                     <input type="date" name="birth_date" value="{{ old('birth_date', isset($customer) ? $customer->birth_date->format('Y-m-d') : '') }}" required class="input-pastel">
                     @error('birth_date') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-amber-700">E-mail</label>
+                    <label class="block text-sm font-medium text-brand-700">E-mail</label>
                     <input type="email" name="email" value="{{ old('email', $customer->email ?? '') }}" class="input-pastel">
                     @error('email') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-amber-700">Observações</label>
+                    <label class="block text-sm font-medium text-brand-700">Observações</label>
                     <textarea name="notes" rows="3" class="input-pastel">{{ old('notes', $customer->notes ?? '') }}</textarea>
                 </div>
 

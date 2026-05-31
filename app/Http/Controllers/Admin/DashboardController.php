@@ -53,7 +53,7 @@ class DashboardController extends Controller
                 ->join('services', 'appointments.service_id', '=', 'services.id')
                 ->sum('services.price');
             $chartData[] = [
-                'label' => $day->format('D'),
+                'label' => $day->locale('pt-BR')->isoFormat('ddd'),
                 'value' => (float) $dayTotal,
             ];
         }
