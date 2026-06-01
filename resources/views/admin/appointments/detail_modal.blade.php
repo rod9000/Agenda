@@ -132,83 +132,138 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
 let currentEventId = null;
 
-document.querySelectorAll('#detailEdit .sel-wrap').forEach(initSearchableSelect);
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('#detailEdit .sel-wrap').forEach(initSearchableSelect);
 
-document.getElementById('edit-start').addEventListener('change', function() {
-    if (this.value) {
-        const start = new Date(this.value);
-        start.setHours(start.getHours() + 1);
+    const serviceDurations = {
+        @foreach($services as $s)
+            {{ $s->id }}: {{ $s->duration_min }},
+        @endforeach
+    };
+
+    function calcEditEnd(startVal, serviceId) {
+        if (!startVal || !serviceId) return;
+        const duration = serviceDurations[serviceId];
+        if (!duration) return;
+        const start = new Date(startVal);
+        start.setMinutes(start.getMinutes() + duration);
         document.getElementById('edit-end').value = start.toISOString().slice(0, 16);
+    }
+
+    function getDetailSelWrapForTarget(target) {
+        const trigger = document.querySelector('#detailEdit [data-target="' + target + '"]');
+        return trigger ? trigger.closest('.sel-wrap') : null;
+    }
+
+    const editServiceWrap = getDetailSelWrapForTarget('edit-service');
+    if (editServiceWrap) {
+        editServiceWrap.querySelectorAll('.sel-option').forEach(function(opt) {
+            opt.addEventListener('click', function() {
+                const sid = this.dataset.value;
+                const startVal = document.getElementById('edit-start').value;
+                calcEditEnd(startVal, sid);
+            });
+        });
+    }
+
+    const editStartEl = document.getElementById('edit-start');
+    if (editStartEl) {
+        editStartEl.addEventListener('change', function() {
+            const sel = editServiceWrap ? editServiceWrap.querySelector('select') : null;
+            calcEditEnd(this.value, sel ? sel.value : null);
+        });
+    }
+
+    const editForm = document.getElementById('editAppointmentForm');
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = {
+                customer_id: document.getElementById('edit-customer').value,
+                user_id: document.getElementById('edit-user').value,
+                service_id: document.getElementById('edit-service').value,
+                start: document.getElementById('edit-start').value,
+                end: document.getElementById('edit-end').value,
+                notes: document.getElementById('edit-notes').value,
+            };
+
+            fetch('/admin/appointments/' + currentEventId, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(function(resp) {
+                if (resp.success) {
+                    closeDetailModal();
+                    calendar.refetchEvents();
+                }
+            });
+        });
     }
 });
 
-function closeDetailModal() {
+window.closeDetailModal = function() {
     document.getElementById('detailModal').classList.add('hidden');
     showDetailView();
-}
+};
 
-function showDetailView() {
+window.showDetailView = function() {
     document.getElementById('detailView').classList.remove('hidden');
     document.getElementById('detailEdit').classList.add('hidden');
-}
+};
 
-function showEditForm() {
+window.showEditForm = function() {
     document.getElementById('detailView').classList.add('hidden');
     document.getElementById('detailEdit').classList.remove('hidden');
-}
+};
 
-function completeAppointment() {
+window.completeAppointment = function() {
     if (!confirm('Marcar este atendimento como concluído?')) return;
     updateAppointmentStatus('completed');
-}
+};
 
-function cancelAppointment() {
+window.cancelAppointment = function() {
     if (!confirm('Cancelar este atendimento?')) return;
     updateAppointmentStatus('cancelled');
-}
+};
 
-function updateAppointmentStatus(status) {
-    fetch('/admin/appointments/' + currentEventId, {
+window.updateAppointmentStatus = function(status) {
+    console.log('updateAppointmentStatus called with:', { status, currentEventId });
+    if (!window.currentEventId) {
+        alert('Erro: ID do agendamento não definido');
+        return;
+    }
+    const url = '/admin/appointments/' + window.currentEventId;
+    console.log('Fetching URL:', url);
+    fetch(url, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify({ status: status })
-    }).then(r => r.json()).then(function(resp) {
+    }).then(function(r) {
+        console.log('Response status:', r.status);
+        if (!r.ok) throw new Error('Erro ao atualizar: ' + r.status);
+        return r.json();
+    }).then(function(resp) {
+        console.log('Response body:', resp);
         if (resp.success) {
-            closeDetailModal();
-            calendar.refetchEvents();
+            window.closeDetailModal();
+            if (window.calendar) {
+                window.calendar.refetchEvents();
+            }
         }
+    }).catch(function(err) {
+        console.error('Fetch error:', err);
+        alert(err.message);
     });
-}
-
-document.getElementById('editAppointmentForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const data = {
-        customer_id: document.getElementById('edit-customer').value,
-        user_id: document.getElementById('edit-user').value,
-        service_id: document.getElementById('edit-service').value,
-        start: document.getElementById('edit-start').value,
-        end: document.getElementById('edit-end').value,
-        notes: document.getElementById('edit-notes').value,
-    };
-
-    fetch('/admin/appointments/' + currentEventId, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify(data)
-    }).then(r => r.json()).then(function(resp) {
-        if (resp.success) {
-            closeDetailModal();
-            calendar.refetchEvents();
-        }
-    });
-});
+};
 </script>
+@endpush

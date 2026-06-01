@@ -85,12 +85,17 @@ class AppointmentController extends Controller
             'user_id'     => 'required|exists:users,id',
             'service_id'  => 'required|exists:services,id',
             'start'       => 'required|date',
-            'end'         => 'required|date|after:start',
+            'end'         => 'nullable|date|after:start',
             'notes'       => 'nullable|string',
         ]);
 
         if (!auth()->user()->isAdmin()) {
             $data['user_id'] = auth()->id();
+        }
+
+        if (!$data['end']) {
+            $service = Service::findOrFail($data['service_id']);
+            $data['end'] = Carbon::parse($data['start'])->addMinutes($service->duration_min);
         }
 
         $data['status'] = 'scheduled';
@@ -105,24 +110,20 @@ class AppointmentController extends Controller
     public function update(Request $request, Appointment $appointment)
     {
         $rules = [
-            'customer_id' => 'required|exists:customers,id',
-            'user_id'     => 'required|exists:users,id',
-            'service_id'  => 'required|exists:services,id',
-            'start'       => 'required|date',
-            'end'         => 'required|date|after:start',
+            'customer_id' => 'sometimes|required|exists:customers,id',
+            'user_id'     => 'sometimes|required|exists:users,id',
+            'service_id'  => 'sometimes|required|exists:services,id',
+            'start'       => 'sometimes|required|date',
+            'end'         => 'sometimes|required|date|after:start',
             'status'      => 'nullable|string|in:scheduled,confirmed,in_progress,completed,cancelled,no_show',
             'notes'       => 'nullable|string',
         ];
 
         if (!auth()->user()->isAdmin()) {
-            $rules['user_id'] = 'required|in:' . auth()->id();
+            $rules['user_id'] = 'sometimes|required|in:' . auth()->id();
         }
 
         $data = $request->validate($rules);
-
-        if (!isset($data['status'])) {
-            $data['status'] = $appointment->status;
-        }
 
         $appointment->update($data);
 

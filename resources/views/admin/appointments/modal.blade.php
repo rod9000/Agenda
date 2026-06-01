@@ -104,16 +104,18 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
-function setSearchableValue(wrap, value) {
+window.setSearchableValue = function(wrap, value) {
     const select = wrap.querySelector('select');
     const trigger = wrap.querySelector('.sel-trigger');
     const options = wrap.querySelectorAll('.sel-option');
     const placeholderText = trigger.querySelector('.placeholder-text');
     select.value = value;
     let found = false;
+    const stringValue = value !== null && value !== undefined ? String(value) : '';
     options.forEach(function(opt) {
-        if (opt.dataset.value === value) {
+        if (opt.dataset.value === stringValue) {
             let st = trigger.querySelector('.selected-text');
             if (!st) {
                 st = document.createElement('span');
@@ -133,16 +135,15 @@ function setSearchableValue(wrap, value) {
         if (st) st.remove();
         placeholderText.style.display = '';
     }
-}
+};
 
-function initSearchableSelect(wrap) {
+window.initSearchableSelect = function(wrap) {
     const trigger = wrap.querySelector('.sel-trigger');
     const dropdown = wrap.querySelector('.sel-dropdown');
     const search = wrap.querySelector('.sel-search');
     const options = wrap.querySelectorAll('.sel-option');
     const select = wrap.querySelector('select');
     const placeholderText = trigger.querySelector('.placeholder-text');
-    const selectedText = trigger.querySelector('.selected-text');
 
     function filterOptions(term) {
         const lower = term.toLowerCase();
@@ -205,6 +206,7 @@ function initSearchableSelect(wrap) {
             const value = this.dataset.value;
             const text = this.textContent;
             select.value = value;
+            select.dispatchEvent(new Event('change'));
             const st = getOrCreateSelectedText();
             st.textContent = text;
             placeholderText.style.display = 'none';
@@ -222,28 +224,83 @@ function initSearchableSelect(wrap) {
     dropdown.addEventListener('click', function(e) {
         e.stopPropagation();
     });
-}
+};
 
-document.querySelectorAll('.sel-wrap').forEach(initSearchableSelect);
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('#newAppointmentModal .sel-wrap').forEach(window.initSearchableSelect);
 
-document.getElementById('start').addEventListener('change', function() {
-    if (this.value) {
-        const start = new Date(this.value);
-        start.setHours(start.getHours() + 1);
-        document.getElementById('end').value = start.toISOString().slice(0, 16);
+    const serviceDurations = {
+        @foreach($services as $s)
+            {{ $s->id }}: {{ $s->duration_min }},
+        @endforeach
+    };
+
+    window.toLocalDatetimeLocal = function(value) {
+        const date = new Date(value);
+        const pad = (n) => String(n).padStart(2, '0');
+        const year = date.getFullYear();
+        const month = pad(date.getMonth() + 1);
+        const day = pad(date.getDate());
+        const hours = pad(date.getHours());
+        const minutes = pad(date.getMinutes());
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    window.calcEnd = function(startVal, serviceId) {
+        if (!startVal || !serviceId) return;
+        const duration = serviceDurations[serviceId];
+        if (!duration) return;
+        const start = new Date(startVal);
+        start.setMinutes(start.getMinutes() + duration);
+        document.getElementById('end').value = window.toLocalDatetimeLocal(start);
+    };
+
+    function getSelWrapForTarget(target) {
+        const trigger = document.querySelector('#newAppointmentModal [data-target="' + target + '"]');
+        return trigger ? trigger.closest('.sel-wrap') : null;
+    }
+
+    const serviceWrap = getSelWrapForTarget('service_id');
+    if (serviceWrap) {
+        serviceWrap.querySelectorAll('.sel-option').forEach(function(opt) {
+            opt.addEventListener('click', function() {
+                const sid = this.dataset.value;
+                const startVal = document.getElementById('start').value;
+                window.calcEnd(startVal, sid);
+            });
+        });
+
+        const serviceSelect = serviceWrap.querySelector('select');
+        if (serviceSelect) {
+            serviceSelect.addEventListener('change', function() {
+                window.calcEnd(document.getElementById('start').value, this.value);
+            });
+        }
+    }
+
+    const startEl = document.getElementById('start');
+    if (startEl) {
+        startEl.addEventListener('change', function() {
+            const sel = serviceWrap ? serviceWrap.querySelector('select') : null;
+            window.calcEnd(this.value, sel ? sel.value : null);
+        });
+    }
+
+    const newAppointmentForm = document.getElementById('newAppointmentForm');
+    if (newAppointmentForm) {
+        newAppointmentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = new FormData(this);
+
+            fetch('{{ route("admin.appointments.store") }}', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: data
+            }).then(function(r) { return r.json(); }).then(function(resp) {
+                if (resp.success) location.reload();
+            });
+        });
     }
 });
-
-document.getElementById('newAppointmentForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const data = new FormData(this);
-
-    fetch('{{ route("admin.appointments.store") }}', {
-        method: 'POST',
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-        body: data
-    }).then(function(r) { return r.json(); }).then(function(resp) {
-        if (resp.success) location.reload();
-    });
-});
 </script>
+@endpush

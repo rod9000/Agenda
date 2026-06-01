@@ -18,9 +18,9 @@
     </div>
 </div>
 
-@include('admin.appointments._modal')
+@include('admin.appointments.modal')
 
-@include('admin.appointments._detail_modal')
+@include('admin.appointments.detail_modal')
 @endsection
 
 @push('styles')
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('newAppointmentModal').classList.remove('hidden');
         },
         eventClick: function(info) {
-            currentEventId = info.event.id;
+            window.currentEventId = info.event.id;
             const props = info.event.extendedProps;
             document.getElementById('detail-customer').textContent = props.customer;
             document.getElementById('detail-service').textContent = props.service;
@@ -118,9 +118,9 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('btnComplete').style.display = (props.status === 'completed' || props.status === 'cancelled' || props.status === 'no_show') ? 'none' : 'inline-block';
             document.getElementById('btnCancel').style.display = (props.status === 'completed' || props.status === 'cancelled' || props.status === 'no_show') ? 'none' : 'inline-block';
 
-            setSearchableValue(document.querySelector('#edit-customer').closest('.sel-wrap'), props.customer_id || '');
-            setSearchableValue(document.querySelector('#edit-user').closest('.sel-wrap'), props.user_id || '');
-            setSearchableValue(document.querySelector('#edit-service').closest('.sel-wrap'), props.service_id || '');
+            window.setSearchableValue(document.querySelector('#edit-customer').closest('.sel-wrap'), props.customer_id || '');
+            window.setSearchableValue(document.querySelector('#edit-user').closest('.sel-wrap'), props.user_id || '');
+            window.setSearchableValue(document.querySelector('#edit-service').closest('.sel-wrap'), props.service_id || '');
             document.getElementById('edit-start').value = info.event.start.toISOString().slice(0, 16);
             document.getElementById('edit-end').value = info.event.end.toISOString().slice(0, 16);
             document.getElementById('edit-notes').value = props.notes || '';

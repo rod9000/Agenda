@@ -69,4 +69,28 @@ class ServiceController extends Controller
         return redirect()->route('admin.services.index')
             ->with('success', 'Procedimento excluído com sucesso!');
     }
+
+    public function sync()
+    {
+        $defaults = config('services_default');
+        $created = 0;
+        $updated = 0;
+
+        foreach ($defaults as $data) {
+            $service = Service::where('name', $data['name'])->first();
+            if ($service) {
+                $service->update($data);
+                $updated++;
+            } else {
+                Service::create($data);
+                $created++;
+            }
+        }
+
+        $names = array_column($defaults, 'name');
+        $deactivated = Service::whereNotIn('name', $names)->where('active', true)->update(['active' => false]);
+
+        return redirect()->route('admin.services.index')
+            ->with('success', "Sincronizado! $created criado(s), $updated atualizado(s)" . ($deactivated ? ", $deactivated desativado(s)" : ''));
+    }
 }

@@ -18,6 +18,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('customers', CustomerController::class)->except(['show']);
 
     Route::resource('services', ServiceController::class)->except(['show']);
+    Route::post('services/sync', [ServiceController::class, 'sync'])->name('services.sync');
 
     Route::resource('products', ProductController::class)->except(['show']);
 
