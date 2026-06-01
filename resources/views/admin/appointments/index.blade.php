@@ -144,6 +144,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     calendar.render();
+
+    // Atualização em Tempo Real (Polling a cada 30 segundos)
+    setInterval(() => {
+        calendar.refetchEvents();
+    }, 30000);
+
+    // Escuta eventos via Laravel Echo (WebSockets)
+    if (window.Echo) {
+        window.Echo.channel('appointments')
+            .listen('.AppointmentChanged', () => {
+                calendar.refetchEvents();
+            });
+    }
 });
 </script>
 @endpush

@@ -297,7 +297,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: data
             }).then(function(r) { return r.json(); }).then(function(resp) {
-                if (resp.success) location.reload();
+                if (resp.success) {
+                    document.getElementById('newAppointmentModal').classList.add('hidden');
+                    newAppointmentForm.reset();
+                    if (window.calendar) window.calendar.refetchEvents();
+                }
             });
         });
     }
