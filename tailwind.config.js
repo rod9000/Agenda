@@ -26,6 +26,9 @@ module.exports = {
                     900: '#2D3A19',
                 },
             },
+            screens: {
+                'hidpi': { 'raw': '(min-resolution: 600dpi), (-webkit-min-device-pixel-ratio: 4)' },
+            },
         },
     },
 

@@ -33,4 +33,14 @@ class Customer extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function anamnesisForms()
+    {
+        return $this->hasMany(AnamnesisForm::class);
+    }
+
+    public function latestAnamnesis()
+    {
+        return $this->hasOne(AnamnesisForm::class)->latestOfMany();
+    }
 }
