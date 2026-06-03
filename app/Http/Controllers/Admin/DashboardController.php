@@ -27,14 +27,14 @@ class DashboardController extends Controller
             ->whereBetween('start', $dateRange);
 
         $revenue = $completedQuery->clone()
-            ->join('services', 'appointments.service_id', '=', 'services.id')
-            ->sum('services.price');
+            ->join('appointment_service', 'appointments.id', '=', 'appointment_service.appointment_id')
+            ->sum('appointment_service.price');
 
         $completedCount = $completedQuery->clone()->count();
 
         $pendingCount = Appointment::whereIn('status', ['scheduled', 'confirmed'])->count();
 
-        $todayAppointments = Appointment::with(['customer', 'service', 'user'])
+        $todayAppointments = Appointment::with(['customer', 'services', 'user'])
             ->whereDate('start', Carbon::today())
             ->orderBy('start')
             ->get();
@@ -50,8 +50,8 @@ class DashboardController extends Controller
             $day = Carbon::now()->startOfWeek()->addDays($i);
             $dayTotal = Appointment::where('status', 'completed')
                 ->whereDate('start', $day)
-                ->join('services', 'appointments.service_id', '=', 'services.id')
-                ->sum('services.price');
+                ->join('appointment_service', 'appointments.id', '=', 'appointment_service.appointment_id')
+                ->sum('appointment_service.price');
             $chartData[] = [
                 'label' => $day->locale('pt-BR')->isoFormat('ddd'),
                 'value' => (float) $dayTotal,

@@ -2,27 +2,34 @@
 
 namespace App\Providers;
 
+use App\Models\AnamnesisForm;
+use App\Models\Appointment;
+use App\Models\Customer;
+use App\Models\Product;
+use App\Models\Service;
+use App\Models\User;
+use App\Observers\AnamnesisFormObserver;
+use App\Observers\AppointmentObserver;
+use App\Observers\CustomerObserver;
+use App\Observers\ProductObserver;
+use App\Observers\ServiceObserver;
+use App\Observers\UserObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     *
-     * @return void
-     */
     public function register()
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     *
-     * @return void
-     */
     public function boot()
     {
-        //
+        Customer::observe(CustomerObserver::class);
+        Appointment::observe(AppointmentObserver::class);
+        Service::observe(ServiceObserver::class);
+        Product::observe(ProductObserver::class);
+        User::observe(UserObserver::class);
+        AnamnesisForm::observe(AnamnesisFormObserver::class);
     }
 }

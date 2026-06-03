@@ -1,12 +1,12 @@
 const defaultTheme = require('tailwindcss/defaultTheme');
 
 module.exports = {
+    darkMode: 'class',
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
     ],
-
     theme: {
         extend: {
             fontFamily: {
@@ -14,15 +14,9 @@ module.exports = {
             },
             colors: {
                 brand: {
-                    50: '#F4F7EE',
-                    100: '#E8EDDB',
-                    200: '#D1DAB7',
-                    300: '#BAC893',
-                    400: '#AFB796',
-                    500: '#959E7D',
-                    600: '#7B8564',
-                    700: '#616C4B',
-                    800: '#475332',
+                    50: '#F4F7EE', 100: '#E8EDDB', 200: '#D1DAB7',
+                    300: '#BAC893', 400: '#AFB796', 500: '#959E7D',
+                    600: '#7B8564', 700: '#616C4B', 800: '#475332',
                     900: '#2D3A19',
                 },
             },
@@ -31,6 +25,5 @@ module.exports = {
             },
         },
     },
-
     plugins: [require('@tailwindcss/forms')],
 };

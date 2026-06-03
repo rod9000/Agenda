@@ -36,6 +36,30 @@
                     @error('purchase_price') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-brand-700">Preço de Venda (R$)</label>
+                    <input type="number" step="0.01" name="sale_price" value="{{ old('sale_price', $product->sale_price ?? '') }}" min="0" class="input-pastel">
+                    @error('sale_price') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-brand-700">Quantidade em Estoque</label>
+                    <input type="number" name="quantity" value="{{ old('quantity', $product->quantity ?? 0) }}" min="0" class="input-pastel">
+                    @error('quantity') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-brand-700">Estoque Mínimo (alerta)</label>
+                    <input type="number" name="min_stock" value="{{ old('min_stock', $product->min_stock ?? 0) }}" min="0" class="input-pastel">
+                    @error('min_stock') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-brand-700">Fornecedor</label>
+                    <input type="text" name="supplier" value="{{ old('supplier', $product->supplier ?? '') }}" class="input-pastel">
+                    @error('supplier') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+
                 <div class="flex justify-end gap-2">
                     <a href="{{ route('admin.products.index') }}" class="btn-pastel-secondary">Cancelar</a>
                     <button type="submit" class="btn-pastel-primary">

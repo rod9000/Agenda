@@ -6,32 +6,143 @@ ftp_host = "ftpupload.net"
 ftp_user = "if0_41967135"
 ftp_pass = "tiUzMXg7kcrfp"
 
-# Arquivos a fazer upload
+REMOTE_BASE = "nabiesteticaagenda.freehosting.dev/htdocs"
+
+# Arquivos a fazer upload (local -> remoto)
 files = [
-    ("resources/views/admin/appointments/detail_modal.blade.php", "/htdocs/resources/views/admin/appointments/detail_modal.blade.php"),
-    ("resources/views/admin/appointments/modal.blade.php", "/htdocs/resources/views/admin/appointments/modal.blade.php"),
-    ("resources/views/admin/appointments/index.blade.php", "/htdocs/resources/views/admin/appointments/index.blade.php"),
+    # Migrations
+    ("database/migrations/2026_06_03_000001_create_activity_logs_table.php", "/htdocs/database/migrations/2026_06_03_000001_create_activity_logs_table.php"),
+    ("database/migrations/2026_06_03_000002_create_payments_table.php", "/htdocs/database/migrations/2026_06_03_000002_create_payments_table.php"),
+    ("database/migrations/2026_06_03_000003_add_stock_fields_to_products_table.php", "/htdocs/database/migrations/2026_06_03_000003_add_stock_fields_to_products_table.php"),
+    ("database/migrations/2026_06_03_000004_create_stock_movements_table.php", "/htdocs/database/migrations/2026_06_03_000004_create_stock_movements_table.php"),
+    ("database/migrations/2026_06_03_000005_add_commission_to_services_table.php", "/htdocs/database/migrations/2026_06_03_000005_add_commission_to_services_table.php"),
+    ("database/migrations/2026_06_03_000006_create_commissions_table.php", "/htdocs/database/migrations/2026_06_03_000006_create_commissions_table.php"),
+    ("database/migrations/2026_06_03_000007_create_working_hours_table.php", "/htdocs/database/migrations/2026_06_03_000007_create_working_hours_table.php"),
+    ("database/migrations/2026_06_03_000008_create_blocked_slots_table.php", "/htdocs/database/migrations/2026_06_03_000008_create_blocked_slots_table.php"),
+    ("database/migrations/2026_06_03_000009_add_recurring_to_appointments_table.php", "/htdocs/database/migrations/2026_06_03_000009_add_recurring_to_appointments_table.php"),
+    ("database/migrations/2026_06_03_000010_create_product_service_table.php", "/htdocs/database/migrations/2026_06_03_000010_create_product_service_table.php"),
+
+    # Models
+    ("app/Models/Service.php", "/htdocs/app/Models/Service.php"),
+    ("app/Models/Product.php", "/htdocs/app/Models/Product.php"),
+    ("app/Models/User.php", "/htdocs/app/Models/User.php"),
+    ("app/Models/Commission.php", "/htdocs/app/Models/Commission.php"),
+    ("app/Models/Appointment.php", "/htdocs/app/Models/Appointment.php"),
+    ("app/Models/ActivityLog.php", "/htdocs/app/Models/ActivityLog.php"),
+    ("app/Models/Payment.php", "/htdocs/app/Models/Payment.php"),
+    ("app/Models/StockMovement.php", "/htdocs/app/Models/StockMovement.php"),
+    ("app/Models/WorkingHour.php", "/htdocs/app/Models/WorkingHour.php"),
+    ("app/Models/BlockedSlot.php", "/htdocs/app/Models/BlockedSlot.php"),
+    ("app/Models/NotificationLog.php", "/htdocs/app/Models/NotificationLog.php"),
+
+    # Controllers
+    ("app/Http/Controllers/Admin/ServiceController.php", "/htdocs/app/Http/Controllers/Admin/ServiceController.php"),
+    ("app/Http/Controllers/Admin/AppointmentController.php", "/htdocs/app/Http/Controllers/Admin/AppointmentController.php"),
+    ("app/Http/Controllers/Admin/FinancialController.php", "/htdocs/app/Http/Controllers/Admin/FinancialController.php"),
+    ("app/Http/Controllers/Admin/ProductController.php", "/htdocs/app/Http/Controllers/Admin/ProductController.php"),
+    ("app/Http/Controllers/Admin/CommissionController.php", "/htdocs/app/Http/Controllers/Admin/CommissionController.php"),
+    ("app/Http/Controllers/Admin/CustomerController.php", "/htdocs/app/Http/Controllers/Admin/CustomerController.php"),
+    ("app/Http/Controllers/Admin/ReportController.php", "/htdocs/app/Http/Controllers/Admin/ReportController.php"),
+    ("app/Http/Controllers/Admin/BackupController.php", "/htdocs/app/Http/Controllers/Admin/BackupController.php"),
+    ("app/Http/Controllers/Admin/SettingsController.php", "/htdocs/app/Http/Controllers/Admin/SettingsController.php"),
+    ("app/Http/Controllers/Admin/LogController.php", "/htdocs/app/Http/Controllers/Admin/LogController.php"),
+    ("app/Http/Controllers/Admin/MigrationController.php", "/htdocs/app/Http/Controllers/Admin/MigrationController.php"),
+    ("app/Http/Controllers/PublicController.php", "/htdocs/app/Http/Controllers/PublicController.php"),
+
+    # Observers
+    ("app/Observers/CustomerObserver.php", "/htdocs/app/Observers/CustomerObserver.php"),
+    ("app/Observers/AppointmentObserver.php", "/htdocs/app/Observers/AppointmentObserver.php"),
+    ("app/Observers/ServiceObserver.php", "/htdocs/app/Observers/ServiceObserver.php"),
+    ("app/Observers/ProductObserver.php", "/htdocs/app/Observers/ProductObserver.php"),
+    ("app/Observers/UserObserver.php", "/htdocs/app/Observers/UserObserver.php"),
+    ("app/Observers/AnamnesisFormObserver.php", "/htdocs/app/Observers/AnamnesisFormObserver.php"),
+
+    # Services
+    ("app/Services/WhatsAppService.php", "/htdocs/app/Services/WhatsAppService.php"),
+
+    # Console
+    ("app/Console/Kernel.php", "/htdocs/app/Console/Kernel.php"),
+    ("app/Console/Commands/SendReminders.php", "/htdocs/app/Console/Commands/SendReminders.php"),
+    ("app/Console/Commands/RunBackup.php", "/htdocs/app/Console/Commands/RunBackup.php"),
+
+    # Providers
+    ("app/Providers/AppServiceProvider.php", "/htdocs/app/Providers/AppServiceProvider.php"),
+
+    # Routes
+    ("routes/web.php", "/htdocs/routes/web.php"),
+
+    # Views
+    ("resources/views/layouts/navigation.blade.php", "/htdocs/resources/views/layouts/navigation.blade.php"),
     ("resources/views/layouts/app.blade.php", "/htdocs/resources/views/layouts/app.blade.php"),
+    ("resources/views/admin/services/create.blade.php", "/htdocs/resources/views/admin/services/create.blade.php"),
+    ("resources/views/admin/services/edit.blade.php", "/htdocs/resources/views/admin/services/edit.blade.php"),
+    ("resources/views/admin/services/index.blade.php", "/htdocs/resources/views/admin/services/index.blade.php"),
+    ("resources/views/admin/financial/index.blade.php", "/htdocs/resources/views/admin/financial/index.blade.php"),
+    ("resources/views/admin/products/create.blade.php", "/htdocs/resources/views/admin/products/create.blade.php"),
+    ("resources/views/admin/products/edit.blade.php", "/htdocs/resources/views/admin/products/edit.blade.php"),
+    ("resources/views/admin/products/show.blade.php", "/htdocs/resources/views/admin/products/show.blade.php"),
+    ("resources/views/admin/customers/show.blade.php", "/htdocs/resources/views/admin/customers/show.blade.php"),
+    ("resources/views/admin/commissions/index.blade.php", "/htdocs/resources/views/admin/commissions/index.blade.php"),
+    ("resources/views/admin/reports/index.blade.php", "/htdocs/resources/views/admin/reports/index.blade.php"),
+    ("resources/views/admin/settings/backup.blade.php", "/htdocs/resources/views/admin/settings/backup.blade.php"),
+    ("resources/views/admin/settings/working-hours.blade.php", "/htdocs/resources/views/admin/settings/working-hours.blade.php"),
+    ("resources/views/admin/logs/index.blade.php", "/htdocs/resources/views/admin/logs/index.blade.php"),
+    ("resources/views/public/booking.blade.php", "/htdocs/resources/views/public/booking.blade.php"),
+    ("app/Http/Controllers/PublicController.php", "/htdocs/app/Http/Controllers/PublicController.php"),
+    ("resources/views/admin/appointments/index.blade.php", "/htdocs/resources/views/admin/appointments/index.blade.php"),
+    ("resources/views/admin/appointments/modal.blade.php", "/htdocs/resources/views/admin/appointments/modal.blade.php"),
+    ("resources/views/admin/appointments/detail_modal.blade.php", "/htdocs/resources/views/admin/appointments/detail_modal.blade.php"),
+
+    # CSS/JS (compiled assets)
+    ("public/css/app.css", "/htdocs/public/css/app.css"),
+    ("public/js/app.js", "/htdocs/public/js/app.js"),
+
+    # Env
     (".env.ftp", "/htdocs/.env"),
+
+    # Migration trigger
+    ("_migrate.php", "/htdocs/_migrate.php"),
 ]
 
 try:
     # Conectar ao FTP
     ftp = ftplib.FTP(ftp_host, ftp_user, ftp_pass)
-    print(f"✓ Conectado ao FTP: {ftp_host}")
-    
-    # Fazer upload de cada arquivo
+    print(f"Conectado ao FTP: {ftp_host}")
+
+    uploaded = 0
+    skipped = 0
+
     for local_file, remote_file in files:
+        # Replace /htdocs with domain-specific path
+        remote_file = '/' + REMOTE_BASE + remote_file[len('/htdocs'):]
         if os.path.exists(local_file):
+            # Cria diretorios remotos se necessario
+            remote_dir = os.path.dirname(remote_file)
+            try:
+                ftp.cwd(remote_dir)
+            except:
+                parts = remote_dir.strip('/').split('/')
+                current = ''
+                for part in parts:
+                    current += '/' + part
+                    try:
+                        ftp.cwd(current)
+                    except:
+                        ftp.mkd(current)
+                        ftp.cwd(current)
+                ftp.cwd('/')
+
             with open(local_file, 'rb') as f:
                 ftp.storbinary(f'STOR {remote_file}', f)
-            print(f"✓ Upload: {local_file} → {remote_file}")
+            print(f"OK: {local_file}")
+            uploaded += 1
         else:
-            print(f"✗ Arquivo não encontrado: {local_file}")
-    
-    # Desconectar
+            print(f"Arquivo nao encontrado: {local_file}")
+            skipped += 1
+
     ftp.quit()
-    print(f"\n✓ Upload completo!")
-    
+    print(f"\nUpload completo! {uploaded} enviados, {skipped} ignorados.")
+    print(f"\nAcesse: https://nabiesteticaagenda.freehosting.dev/_migrate.php para rodar as migrations.")
+
 except Exception as e:
-    print(f"✗ Erro: {e}")
+    print(f"Erro: {e}")

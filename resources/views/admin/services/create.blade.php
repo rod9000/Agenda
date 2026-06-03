@@ -45,6 +45,35 @@
                     @error('estimated_product_cost') <p class="text-rose-500 text-xs hidpi:text-sm mt-1">{{ $message }}</p> @enderror
                 </div>
 
+                <div class="mb-4 p-4 bg-indigo-50 rounded-xl border border-indigo-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="font-semibold text-sm hidpi:text-base text-indigo-800">Produtos Utilizados</h4>
+                        <button type="button" id="addProductRow" class="text-xs hidpi:text-sm text-indigo-600 hover:text-indigo-800 font-medium">+ Adicionar produto</button>
+                    </div>
+                    <div id="productsContainer" class="space-y-2">
+                        @php $oldProducts = old('products', isset($service) && $service->relationLoaded('products') ? $service->products->map(fn($p) => ['product_id' => $p->id, 'quantity' => $p->pivot->quantity, 'is_per_session' => $p->pivot->is_per_session])->toArray() : []); @endphp
+                        @forelse($oldProducts as $i => $p)
+                        <div class="product-row flex items-center gap-2 hidpi:gap-3">
+                            <select name="products[{{ $i }}][product_id]" class="input-pastel flex-1 hidpi:text-base hidpi:py-2.5">
+                                <option value="">Selecione...</option>
+                                @foreach($products as $prod)
+                                <option value="{{ $prod->id }}" {{ ($p['product_id'] ?? '') == $prod->id ? 'selected' : '' }}>{{ $prod->name }} (estoque: {{ $prod->quantity }})</option>
+                                @endforeach
+                            </select>
+                            <input type="number" name="products[{{ $i }}][quantity]" value="{{ $p['quantity'] ?? 1 }}" min="1" class="input-pastel w-16 hidpi:w-20 hidpi:text-base hidpi:py-2.5" placeholder="Qtd">
+                            <label class="flex items-center gap-1 text-xs hidpi:text-sm text-indigo-700 whitespace-nowrap cursor-pointer">
+                                <input type="checkbox" name="products[{{ $i }}][is_per_session]" value="1" {{ !empty($p['is_per_session']) ? 'checked' : '' }} class="rounded border-indigo-300 text-indigo-600 shadow-sm focus:ring-indigo-300">
+                                Sessão
+                            </label>
+                            <button type="button" class="remove-product text-rose-400 hover:text-rose-600 font-bold px-1">×</button>
+                        </div>
+                        @empty
+                        <p class="text-xs hidpi:text-sm text-indigo-400">Nenhum produto vinculado. Clique em "Adicionar produto" para começar.</p>
+                        @endforelse
+                    </div>
+                    <p class="text-xs hidpi:text-sm text-indigo-400 mt-2">Marcar como <strong>"Sessão"</strong> = utilizado uma única vez por visita do cliente (ex: luvas, máscaras). Desmarcado = consumido a cada procedimento.</p>
+                </div>
+
                 <div class="mb-4">
                     <label class="block text-sm hidpi:text-base font-medium text-brand-700">Descrição</label>
                     <textarea name="description" rows="3" class="input-pastel hidpi:text-base">{{ old('description', $service->description ?? '') }}</textarea>
@@ -68,3 +97,46 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('productsContainer');
+    const addBtn = document.getElementById('addProductRow');
+    let index = container.querySelectorAll('.product-row').length;
+
+    addBtn.addEventListener('click', function () {
+        const empty = container.querySelector('.text-indigo-400');
+        if (empty) empty.remove();
+
+        const options = `@json($products->map(fn($p) => ['id' => $p->id, 'name' => $p->name, 'quantity' => $p->quantity]))`;
+        const prods = JSON.parse(options);
+        const html = `
+            <div class="product-row flex items-center gap-2 hidpi:gap-3">
+                <select name="products[${index}][product_id]" class="input-pastel flex-1 hidpi:text-base hidpi:py-2.5">
+                    <option value="">Selecione...</option>
+                    ${prods.map(p => `<option value="${p.id}">${p.name} (estoque: ${p.quantity})</option>`).join('')}
+                </select>
+                <input type="number" name="products[${index}][quantity]" value="1" min="1" class="input-pastel w-16 hidpi:w-20 hidpi:text-base hidpi:py-2.5" placeholder="Qtd">
+                <label class="flex items-center gap-1 text-xs hidpi:text-sm text-indigo-700 whitespace-nowrap cursor-pointer">
+                    <input type="checkbox" name="products[${index}][is_per_session]" value="1" class="rounded border-indigo-300 text-indigo-600 shadow-sm focus:ring-indigo-300">
+                    Sessão
+                </label>
+                <button type="button" class="remove-product text-rose-400 hover:text-rose-600 font-bold px-1">×</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+        index++;
+    });
+
+    container.addEventListener('click', function (e) {
+        if (e.target.classList.contains('remove-product')) {
+            e.target.closest('.product-row').remove();
+            if (!container.querySelector('.product-row')) {
+                container.innerHTML = '<p class="text-xs hidpi:text-sm text-indigo-400">Nenhum produto vinculado. Clique em "Adicionar produto" para começar.</p>';
+            }
+        }
+    });
+});
+</script>
+@endpush

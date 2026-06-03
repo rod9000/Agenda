@@ -42,6 +42,11 @@ class User extends Authenticatable
         return $this->hasMany(Customer::class, 'created_by');
     }
 
+    public function commissions()
+    {
+        return $this->hasMany(Commission::class, 'user_id');
+    }
+
     public function isAdmin()
     {
         return $this->role === 'admin';

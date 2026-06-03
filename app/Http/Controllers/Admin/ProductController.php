@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\StockMovement;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -26,12 +27,25 @@ class ProductController extends Controller
             'brand'          => 'nullable|string|max:100',
             'expiry_date'    => 'nullable|date',
             'purchase_price' => 'required|numeric|min:0',
+            'quantity'       => 'nullable|integer|min:0',
+            'min_stock'      => 'nullable|integer|min:0',
+            'supplier'       => 'nullable|string|max:100',
+            'sale_price'     => 'nullable|numeric|min:0',
         ]);
+
+        $data['quantity'] = $data['quantity'] ?? 0;
 
         Product::create($data);
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Produto cadastrado com sucesso!');
+    }
+
+    public function show(Product $product)
+    {
+        $product->load('stockMovements.user');
+
+        return view('admin.products.show', compact('product'));
     }
 
     public function edit(Product $product)
@@ -46,6 +60,10 @@ class ProductController extends Controller
             'brand'          => 'nullable|string|max:100',
             'expiry_date'    => 'nullable|date',
             'purchase_price' => 'required|numeric|min:0',
+            'quantity'       => 'nullable|integer|min:0',
+            'min_stock'      => 'nullable|integer|min:0',
+            'supplier'       => 'nullable|string|max:100',
+            'sale_price'     => 'nullable|numeric|min:0',
         ]);
 
         $product->update($data);
@@ -56,8 +74,33 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        $product->stockMovements()->delete();
         $product->delete();
         return redirect()->route('admin.products.index')
             ->with('success', 'Produto excluído com sucesso!');
+    }
+
+    public function movementStore(Request $request)
+    {
+        $data = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'type'       => 'required|in:in,out',
+            'quantity'   => 'required|integer|min:1',
+            'notes'      => 'nullable|string',
+        ]);
+
+        $product = Product::findOrFail($data['product_id']);
+
+        if ($data['type'] === 'in') {
+            $product->addStock($data['quantity'], $data['notes']);
+        } else {
+            $movement = $product->removeStock($data['quantity'], $data['notes']);
+            if (!$movement) {
+                return redirect()->back()->with('error', 'Estoque insuficiente!');
+            }
+        }
+
+        return redirect()->route('admin.products.show', $product)
+            ->with('success', 'Movimentação registrada com sucesso!');
     }
 }

@@ -14,6 +14,7 @@
                 <div class="flex justify-between"><span class="font-medium text-brand-600">Data/Hora:</span> <span id="detail-time" class="text-stone-800"></span></div>
                 <div class="flex justify-between"><span class="font-medium text-brand-600">Valor:</span> <span id="detail-price" class="text-emerald-700 font-semibold"></span></div>
                 <div class="flex justify-between"><span class="font-medium text-brand-600">Telefone:</span> <span id="detail-phone" class="text-stone-800"></span></div>
+                <div class="flex justify-between"><span class="font-medium text-brand-600">Pagamento:</span> <span id="detail-payment" class="text-stone-800"></span></div>
                 <div class="flex justify-between"><span class="font-medium text-brand-600">Obs:</span> <span id="detail-notes" class="text-stone-800"></span></div>
             </div>
 
@@ -83,30 +84,6 @@
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-brand-700 mb-1">Procedimento</label>
-                    <div class="sel-wrap">
-                        <div class="sel-trigger" data-target="edit-service">
-                            <span class="placeholder-text">Selecione um procedimento...</span>
-                            <span class="arrow">&#9660;</span>
-                        </div>
-                        <div class="sel-dropdown">
-                            <input type="text" class="sel-search" placeholder="Buscar procedimento..." autocomplete="off">
-                            <div class="sel-options">
-                                @foreach($services as $s)
-                                    <div class="sel-option" data-value="{{ $s->id }}">{{ $s->name }}</div>
-                                @endforeach
-                            </div>
-                        </div>
-                        <select name="service_id" id="edit-service" required class="hidden">
-                            <option value="">Selecione...</option>
-                            @foreach($services as $s)
-                                <option value="{{ $s->id }}">{{ $s->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-brand-700">Início</label>
@@ -116,6 +93,21 @@
                         <label class="block text-sm font-medium text-brand-700">Fim</label>
                         <input type="datetime-local" name="end" id="edit-end" required class="input-pastel">
                     </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-brand-700 mb-1">Procedimentos</label>
+                    <div id="editServiceCheckboxes" class="space-y-2 max-h-48 overflow-y-auto p-3 bg-brand-50/50 rounded-xl border border-brand-100">
+                        @foreach($services as $s)
+                        <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/80 cursor-pointer transition-all">
+                            <input type="checkbox" name="service_ids[]" value="{{ $s->id }}" data-duration="{{ $s->duration_min }}"
+                                   class="w-4 h-4 rounded border-brand-300 text-brand-600 focus:ring-brand-400 edit-service-checkbox"
+                                   onchange="updateEditServiceSelection()">
+                            <span class="text-sm text-stone-700">{{ $s->name }} <span class="text-xs text-stone-400">({{ $s->duration_min }}min)</span></span>
+                        </label>
+                        @endforeach
+                    </div>
+                    <p id="editServiceCount" class="text-xs text-stone-400 mt-1">Nenhum procedimento selecionado</p>
                 </div>
 
                 <div class="mb-4">
@@ -139,42 +131,41 @@ let currentEventId = null;
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('#detailEdit .sel-wrap').forEach(initSearchableSelect);
 
-    const serviceDurations = {
-        @foreach($services as $s)
-            {{ $s->id }}: {{ $s->duration_min }},
-        @endforeach
-    };
+    window.updateEditServiceSelection = function() {
+        const checkboxes = document.querySelectorAll('#editServiceCheckboxes .edit-service-checkbox:checked');
+        const count = checkboxes.length;
+        const countEl = document.getElementById('editServiceCount');
+        countEl.textContent = count === 0 ? 'Nenhum procedimento selecionado' : count + ' procedimento(s) selecionado(s)';
 
-    function calcEditEnd(startVal, serviceId) {
-        if (!startVal || !serviceId) return;
-        const duration = serviceDurations[serviceId];
-        if (!duration) return;
-        const start = new Date(startVal);
-        start.setMinutes(start.getMinutes() + duration);
-        document.getElementById('edit-end').value = start.toISOString().slice(0, 16);
-    }
-
-    function getDetailSelWrapForTarget(target) {
-        const trigger = document.querySelector('#detailEdit [data-target="' + target + '"]');
-        return trigger ? trigger.closest('.sel-wrap') : null;
-    }
-
-    const editServiceWrap = getDetailSelWrapForTarget('edit-service');
-    if (editServiceWrap) {
-        editServiceWrap.querySelectorAll('.sel-option').forEach(function(opt) {
-            opt.addEventListener('click', function() {
-                const sid = this.dataset.value;
-                const startVal = document.getElementById('edit-start').value;
-                calcEditEnd(startVal, sid);
-            });
+        let totalMinutes = 0;
+        checkboxes.forEach(function(cb) {
+            totalMinutes += parseInt(cb.dataset.duration) || 0;
         });
-    }
+
+        const startVal = document.getElementById('edit-start').value;
+        if (startVal && totalMinutes > 0) {
+            const start = new Date(startVal);
+            start.setMinutes(start.getMinutes() + totalMinutes);
+            document.getElementById('edit-end').value = start.toISOString().slice(0, 16);
+        } else if (startVal) {
+            document.getElementById('edit-end').value = startVal;
+        }
+    };
 
     const editStartEl = document.getElementById('edit-start');
     if (editStartEl) {
         editStartEl.addEventListener('change', function() {
-            const sel = editServiceWrap ? editServiceWrap.querySelector('select') : null;
-            calcEditEnd(this.value, sel ? sel.value : null);
+            const checkboxes = document.querySelectorAll('#editServiceCheckboxes .edit-service-checkbox:checked');
+            let maxDuration = 0;
+            checkboxes.forEach(function(cb) {
+                const d = parseInt(cb.dataset.duration) || 0;
+                if (d > maxDuration) maxDuration = d;
+            });
+            if (this.value && maxDuration > 0) {
+                const start = new Date(this.value);
+                start.setMinutes(start.getMinutes() + maxDuration);
+                document.getElementById('edit-end').value = start.toISOString().slice(0, 16);
+            }
         });
     }
 
@@ -182,10 +173,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (editForm) {
         editForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            const serviceCheckboxes = document.querySelectorAll('#editServiceCheckboxes .edit-service-checkbox:checked');
+            const serviceIds = Array.from(serviceCheckboxes).map(function(cb) { return cb.value; });
+
             const data = {
                 customer_id: document.getElementById('edit-customer').value,
                 user_id: document.getElementById('edit-user').value,
-                service_id: document.getElementById('edit-service').value,
+                service_ids: serviceIds,
                 start: document.getElementById('edit-start').value,
                 end: document.getElementById('edit-end').value,
                 notes: document.getElementById('edit-notes').value,

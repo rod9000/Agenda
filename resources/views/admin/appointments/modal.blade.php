@@ -56,30 +56,6 @@
                 </div>
             </div>
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-brand-700 mb-1">Procedimento</label>
-                <div class="sel-wrap">
-                    <div class="sel-trigger" data-target="service_id">
-                        <span class="placeholder-text">Selecione um procedimento...</span>
-                        <span class="arrow">&#9660;</span>
-                    </div>
-                    <div class="sel-dropdown">
-                        <input type="text" class="sel-search" placeholder="Buscar procedimento..." autocomplete="off">
-                        <div class="sel-options">
-                            @foreach($services as $s)
-                                <div class="sel-option" data-value="{{ $s->id }}">{{ $s->name }} ({{ $s->duration_min }}min - R$ {{ number_format($s->price, 2, ',', '.') }})</div>
-                            @endforeach
-                        </div>
-                    </div>
-                    <select name="service_id" required class="hidden">
-                        <option value="">Selecione...</option>
-                        @foreach($services as $s)
-                            <option value="{{ $s->id }}">{{ $s->name }} ({{ $s->duration_min }}min - R$ {{ number_format($s->price, 2, ',', '.') }})</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="block text-sm font-medium text-brand-700 mb-1">Início</label>
@@ -88,6 +64,41 @@
                 <div>
                     <label class="block text-sm font-medium text-brand-700 mb-1">Fim</label>
                     <input type="datetime-local" name="end" id="end" required class="input-pastel">
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-brand-700 mb-1">Procedimentos</label>
+                <div id="serviceCheckboxes" class="space-y-2 max-h-48 overflow-y-auto p-3 bg-brand-50/50 rounded-xl border border-brand-100">
+                    @foreach($services as $s)
+                    <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/80 cursor-pointer transition-all">
+                        <input type="checkbox" name="service_ids[]" value="{{ $s->id }}" data-duration="{{ $s->duration_min }}" data-price="{{ $s->price }}"
+                               class="w-4 h-4 rounded border-brand-300 text-brand-600 focus:ring-brand-400 service-checkbox"
+                               onchange="updateServiceSelection()">
+                        <span class="text-sm text-stone-700">{{ $s->name }} <span class="text-xs text-stone-400">({{ $s->duration_min }}min - R$ {{ number_format($s->price, 2, ',', '.') }})</span></span>
+                    </label>
+                    @endforeach
+                </div>
+                <p id="serviceCount" class="text-xs text-stone-400 mt-1">Nenhum procedimento selecionado</p>
+            </div>
+
+            <div class="mb-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+                <h4 class="font-semibold text-sm text-amber-800 mb-2">Agendamento Recorrente</h4>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-medium text-amber-700">Repetir</label>
+                        <select name="recurring_frequency" class="input-pastel text-sm">
+                            <option value="">Não repetir</option>
+                            <option value="daily">Diariamente</option>
+                            <option value="weekly">Semanalmente</option>
+                            <option value="biweekly">Quinzenalmente</option>
+                            <option value="monthly">Mensalmente</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-amber-700">Até</label>
+                        <input type="date" name="recurring_until" class="input-pastel text-sm">
+                    </div>
                 </div>
             </div>
 
@@ -229,10 +240,25 @@ window.initSearchableSelect = function(wrap) {
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('#newAppointmentModal .sel-wrap').forEach(window.initSearchableSelect);
 
-    const serviceDurations = {
-        @foreach($services as $s)
-            {{ $s->id }}: {{ $s->duration_min }},
-        @endforeach
+    window.updateServiceSelection = function() {
+        const checkboxes = document.querySelectorAll('#serviceCheckboxes .service-checkbox:checked');
+        const count = checkboxes.length;
+        const countEl = document.getElementById('serviceCount');
+        countEl.textContent = count === 0 ? 'Nenhum procedimento selecionado' : count + ' procedimento(s) selecionado(s)';
+
+        let totalMinutes = 0;
+        checkboxes.forEach(function(cb) {
+            totalMinutes += parseInt(cb.dataset.duration) || 0;
+        });
+
+        const startVal = document.getElementById('start').value;
+        if (startVal && totalMinutes > 0) {
+            const start = new Date(startVal);
+            start.setMinutes(start.getMinutes() + totalMinutes);
+            document.getElementById('end').value = window.toLocalDatetimeLocal(start);
+        } else if (startVal) {
+            document.getElementById('end').value = startVal;
+        }
     };
 
     window.toLocalDatetimeLocal = function(value) {
@@ -246,43 +272,26 @@ document.addEventListener('DOMContentLoaded', function() {
         return `${year}-${month}-${day}T${hours}:${minutes}`;
     };
 
-    window.calcEnd = function(startVal, serviceId) {
-        if (!startVal || !serviceId) return;
-        const duration = serviceDurations[serviceId];
-        if (!duration) return;
-        const start = new Date(startVal);
-        start.setMinutes(start.getMinutes() + duration);
-        document.getElementById('end').value = window.toLocalDatetimeLocal(start);
-    };
-
     function getSelWrapForTarget(target) {
         const trigger = document.querySelector('#newAppointmentModal [data-target="' + target + '"]');
         return trigger ? trigger.closest('.sel-wrap') : null;
     }
 
-    const serviceWrap = getSelWrapForTarget('service_id');
-    if (serviceWrap) {
-        serviceWrap.querySelectorAll('.sel-option').forEach(function(opt) {
-            opt.addEventListener('click', function() {
-                const sid = this.dataset.value;
-                const startVal = document.getElementById('start').value;
-                window.calcEnd(startVal, sid);
-            });
-        });
-
-        const serviceSelect = serviceWrap.querySelector('select');
-        if (serviceSelect) {
-            serviceSelect.addEventListener('change', function() {
-                window.calcEnd(document.getElementById('start').value, this.value);
-            });
-        }
-    }
-
     const startEl = document.getElementById('start');
     if (startEl) {
         startEl.addEventListener('change', function() {
-            const sel = serviceWrap ? serviceWrap.querySelector('select') : null;
-            window.calcEnd(this.value, sel ? sel.value : null);
+            const checkboxes = document.querySelectorAll('#serviceCheckboxes .service-checkbox:checked');
+            let totalMinutes = 0;
+            checkboxes.forEach(function(cb) {
+                totalMinutes += parseInt(cb.dataset.duration) || 0;
+            });
+            if (this.value && totalMinutes > 0) {
+                const start = new Date(this.value);
+                start.setMinutes(start.getMinutes() + totalMinutes);
+                document.getElementById('end').value = window.toLocalDatetimeLocal(start);
+            } else if (this.value) {
+                document.getElementById('end').value = this.value;
+            }
         });
     }
 

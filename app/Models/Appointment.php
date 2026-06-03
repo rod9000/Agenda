@@ -17,12 +17,25 @@ class Appointment extends Model
         'end',
         'status',
         'notes',
+        'confirmation_token',
+        'confirmed_at',
     ];
 
     protected $casts = [
         'start' => 'datetime',
         'end' => 'datetime',
+        'confirmed_at' => 'datetime',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($appointment) {
+            if (!$appointment->confirmation_token) {
+                $appointment->confirmation_token = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
 
     public function customer()
     {
@@ -39,8 +52,23 @@ class Appointment extends Model
         return $this->belongsTo(Service::class);
     }
 
+    public function services()
+    {
+        return $this->belongsToMany(Service::class)->withPivot('price', 'duration_min');
+    }
+
     public function notifications()
     {
         return $this->hasMany(NotificationLog::class);
+    }
+
+    public function payment()
+    {
+        return $this->hasOne(Payment::class);
+    }
+
+    public function hasPayment()
+    {
+        return $this->payment()->exists();
     }
 }

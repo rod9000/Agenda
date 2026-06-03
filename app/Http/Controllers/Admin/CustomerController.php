@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 
@@ -22,6 +23,35 @@ class CustomerController extends Controller
 
         $customers = $query->latest()->paginate(15);
         return view('admin.customers.index', compact('customers'));
+    }
+
+    public function show(Customer $customer)
+    {
+        $customer->loadCount('appointments');
+
+        $totalSpent = Appointment::where('customer_id', $customer->id)
+            ->where('status', 'completed')
+            ->join('services', 'appointments.service_id', '=', 'services.id')
+            ->sum('services.price');
+
+        $appointments = Appointment::with(['service', 'user'])
+            ->where('customer_id', $customer->id)
+            ->latest('start')
+            ->paginate(10);
+
+        $lastAppointment = $customer->appointments()
+            ->with('service', 'user')
+            ->latest('start')
+            ->first();
+
+        $anamnesisForms = $customer->anamnesisForms()
+            ->with('answeredBy')
+            ->latest()
+            ->get();
+
+        return view('admin.customers.show', compact(
+            'customer', 'totalSpent', 'appointments', 'lastAppointment', 'anamnesisForms'
+        ));
     }
 
     public function create()

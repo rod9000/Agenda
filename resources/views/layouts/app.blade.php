@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="{ dark: localStorage.getItem('dark') === 'true' }" x-init="() => { if (dark) { document.documentElement.classList.add('dark'); } $watch('dark', val => { localStorage.setItem('dark', val); document.documentElement.classList.toggle('dark', val); }); }">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,8 +12,8 @@
         @stack('styles')
         <script src="{{ asset('js/app.js') . '?nocache=' . env('APP_VERSION', '1.0') }}" defer></script>
     </head>
-    <body class="font-sans antialiased bg-white">
-        <div class="min-h-screen bg-white">
+    <body class="font-sans antialiased bg-white dark:bg-stone-900 dark:text-stone-200">
+        <div class="min-h-screen bg-white dark:bg-stone-900">
             @include('layouts.navigation')
 
             @if (isset($header))

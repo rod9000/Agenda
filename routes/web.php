@@ -8,6 +8,12 @@ use App\Http\Controllers\Admin\AppointmentController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AnamnesisController;
+use App\Http\Controllers\Admin\LogController;
+use App\Http\Controllers\Admin\FinancialController;
+use App\Http\Controllers\Admin\CommissionController;
+use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\BackupController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\MigrationController;
 
 Route::get('/', function () {
@@ -21,15 +27,39 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('customers', CustomerController::class)->except(['show']);
+    Route::get('customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
 
     Route::resource('services', ServiceController::class)->except(['show']);
     Route::post('services/sync', [ServiceController::class, 'sync'])->name('services.sync');
 
+    Route::get('settings/working-hours', [SettingsController::class, 'workingHours'])->name('settings.working-hours');
+    Route::post('settings/working-hours', [SettingsController::class, 'workingHoursStore'])->name('settings.working-hours.store');
+    Route::get('settings/blocked-slots', [SettingsController::class, 'blockedSlots'])->name('settings.blocked-slots');
+    Route::post('settings/blocked-slots', [SettingsController::class, 'blockedSlotsStore'])->name('settings.blocked-slots.store');
+    Route::delete('settings/blocked-slots/{blockedSlot}', [SettingsController::class, 'blockedSlotsDestroy'])->name('settings.blocked-slots.destroy');
+
     Route::resource('products', ProductController::class)->except(['show']);
+    Route::get('products/{product}', [ProductController::class, 'show'])->name('products.show');
+    Route::post('products/movement', [ProductController::class, 'movementStore'])->name('products.movement.store');
 
     Route::resource('users', UserController::class)->except(['show']);
 
     Route::resource('anamnesis', AnamnesisController::class);
+
+    Route::get('logs', [LogController::class, 'index'])->name('logs.index');
+
+    Route::get('financial', [FinancialController::class, 'index'])->name('financial.index');
+    Route::post('financial/payments', [FinancialController::class, 'store'])->name('financial.payments.store');
+
+    Route::get('commissions', [CommissionController::class, 'index'])->name('commissions.index');
+    Route::post('commissions/{commission}/mark-paid', [CommissionController::class, 'markPaid'])->name('commissions.mark-paid');
+
+    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/export-csv', [ReportController::class, 'exportCsv'])->name('reports.export-csv');
+
+    Route::get('backup', [BackupController::class, 'index'])->name('backup.index');
+    Route::post('backup/run', [BackupController::class, 'run'])->name('backup.run');
+    Route::get('backup/download/{filename}', [BackupController::class, 'download'])->name('backup.download');
 
     Route::get('migrate', [MigrationController::class, 'run'])->name('migrate');
 
@@ -40,6 +70,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::put('appointments/{appointment}/reschedule', [AppointmentController::class, 'reschedule'])->name('appointments.reschedule');
     Route::delete('appointments/{appointment}', [AppointmentController::class, 'destroy'])->name('appointments.destroy');
 });
+
+Route::get('/agendar', [App\Http\Controllers\PublicController::class, 'booking'])->name('public.booking');
+Route::get('/agendar/slots', [App\Http\Controllers\PublicController::class, 'getSlots'])->name('public.slots');
+Route::get('/agendar/buscar-cliente', [App\Http\Controllers\PublicController::class, 'searchCustomer'])->name('public.search-customer');
+Route::post('/agendar', [App\Http\Controllers\PublicController::class, 'store'])->name('public.booking.store');
+Route::get('/confirmar/{token}', [App\Http\Controllers\PublicController::class, 'confirmar'])->name('public.confirmar');
 
 Route::get('/dashboard', function () {
     return redirect()->route('admin.dashboard');

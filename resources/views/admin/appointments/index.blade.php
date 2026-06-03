@@ -113,6 +113,16 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('detail-time').textContent = info.event.start.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
             document.getElementById('detail-price').textContent = 'R$ ' + parseFloat(props.price).toFixed(2).replace('.', ',');
             document.getElementById('detail-phone').textContent = props.phone;
+            const methodLabels = { dinheiro: 'Dinheiro', cartao: 'Cartão', pix: 'PIX' };
+            if (props.payment) {
+                if (typeof props.payment === 'object') {
+                    document.getElementById('detail-payment').textContent = (methodLabels[props.payment.method] || props.payment.method) + ' - R$ ' + parseFloat(props.payment.amount).toFixed(2).replace('.', ',');
+                } else {
+                    document.getElementById('detail-payment').textContent = 'Pago';
+                }
+            } else {
+                document.getElementById('detail-payment').textContent = props.status === 'completed' ? 'Aguardando' : '—';
+            }
             document.getElementById('detail-notes').textContent = props.notes || '—';
 
             document.getElementById('btnComplete').style.display = (props.status === 'completed' || props.status === 'cancelled' || props.status === 'no_show') ? 'none' : 'inline-block';
@@ -120,7 +130,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
             window.setSearchableValue(document.querySelector('#edit-customer').closest('.sel-wrap'), props.customer_id || '');
             window.setSearchableValue(document.querySelector('#edit-user').closest('.sel-wrap'), props.user_id || '');
-            window.setSearchableValue(document.querySelector('#edit-service').closest('.sel-wrap'), props.service_id || '');
+
+            const editServiceCheckboxes = document.querySelectorAll('#editServiceCheckboxes .edit-service-checkbox');
+            const selectedIds = props.service_ids || [];
+            editServiceCheckboxes.forEach(function(cb) {
+                cb.checked = selectedIds.includes(cb.value);
+            });
+            if (typeof window.updateEditServiceSelection === 'function') {
+                window.updateEditServiceSelection();
+            }
+
             document.getElementById('edit-start').value = info.event.start.toISOString().slice(0, 16);
             document.getElementById('edit-end').value = info.event.end.toISOString().slice(0, 16);
             document.getElementById('edit-notes').value = props.notes || '';

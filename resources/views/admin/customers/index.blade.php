@@ -36,6 +36,7 @@
                         <td>{{ $c->phone }}</td>
                         <td>{{ $c->birth_date->format('d/m/Y') }}</td>
                         <td class="text-right space-x-2">
+                            <a href="{{ route('admin.customers.show', $c) }}" class="text-brand-600 hover:text-brand-800 font-medium">Visualizar</a>
                             <a href="{{ route('admin.customers.edit', $c) }}" class="text-brand-600 hover:text-brand-800 font-medium">Editar</a>
                             <form method="POST" action="{{ route('admin.customers.destroy', $c) }}" class="inline" onsubmit="return confirm('Excluir cliente? Os agendamentos vinculados também serão removidos.')">
                                 @csrf @method('DELETE')
