@@ -60,6 +60,18 @@ class AppointmentController extends Controller
             $serviceNames = $app->services->pluck('name')->implode(' + ');
             $totalPrice = $app->services->sum('pivot.price');
 
+            $recurringInfo = null;
+            if ($app->isRecurring()) {
+                $recurringInfo = [
+                    'frequency' => $app->recurring_frequency,
+                    'until'     => $app->recurring_until?->format('Y-m-d'),
+                ];
+            } elseif ($app->isChild()) {
+                $recurringInfo = [
+                    'parent_id' => $app->parent_id,
+                ];
+            }
+
             return [
                 'id'              => $app->id,
                 'title'           => $app->customer->name . ' - ' . $serviceNames,
@@ -68,18 +80,19 @@ class AppointmentController extends Controller
                 'backgroundColor' => $statusColors[$app->status] ?? '#3b82f6',
                 'borderColor'     => $statusColors[$app->status] ?? '#3b82f6',
                 'extendedProps'   => [
-                    'customer'    => $app->customer->name,
-                    'customer_id' => $app->customer_id,
-                    'service'     => $serviceNames,
-                    'service_id'  => $app->service_id,
-                    'service_ids' => $app->services->pluck('id')->toArray(),
-                    'user_id'     => $app->user_id,
-                    'status'      => $app->status,
-                    'price'       => $totalPrice,
-                    'phone'       => $app->customer->phone,
-                    'notes'       => $app->notes,
-                    'user'        => $app->user->name,
-                    'payment'     => $app->payment ? ['method' => $app->payment->method, 'amount' => $app->payment->amount] : null,
+                    'customer'       => $app->customer->name,
+                    'customer_id'    => $app->customer_id,
+                    'service'        => $serviceNames,
+                    'service_id'     => $app->service_id,
+                    'service_ids'    => $app->services->pluck('id')->toArray(),
+                    'user_id'        => $app->user_id,
+                    'status'         => $app->status,
+                    'price'          => $totalPrice,
+                    'phone'          => $app->customer->phone,
+                    'notes'          => $app->notes,
+                    'user'           => $app->user->name,
+                    'payment'        => $app->payment ? ['method' => $app->payment->method, 'amount' => $app->payment->amount] : null,
+                    'recurring'      => $recurringInfo,
                 ],
             ];
         });
@@ -130,34 +143,40 @@ class AppointmentController extends Controller
             $frequency = $data['recurring_frequency'];
             $until = Carbon::parse($data['recurring_until']);
             $start = Carbon::parse($data['start']);
+            $end = Carbon::parse($data['end']);
+            $durationMinutes = $start->diffInMinutes($end);
 
-            $intervals = [
-                'daily' => 1,
-                'weekly' => 7,
-                'biweekly' => 14,
-                'monthly' => 30,
+            $current = $start->copy();
+            $intervalMap = [
+                'daily'    => 'addDay',
+                'weekly'   => 'addWeek',
+                'biweekly' => 'addWeeks',
+                'monthly'  => 'addMonth',
             ];
+            $intervalFn = $intervalMap[$frequency] ?? 'addWeek';
+            $intervalArg = $frequency === 'biweekly' ? 2 : 1;
 
-            $days = $intervals[$frequency] ?? 7;
-            $current = $start->copy()->addDays($days);
+            while (true) {
+                if ($intervalArg !== 1) {
+                    $current->{$intervalFn}($intervalArg);
+                } else {
+                    $current->{$intervalFn}();
+                }
 
-            while ($current->lte($until)) {
-                $recurringEnd = Carbon::parse($data['end'])->addDays($current->diffInDays($start));
+                if ($current->gt($until)) break;
 
                 $child = Appointment::create([
                     'customer_id' => $data['customer_id'],
                     'user_id'     => $data['user_id'],
                     'service_id'  => $data['service_id'],
-                    'start'       => $current,
-                    'end'         => $recurringEnd,
+                    'start'       => $current->copy(),
+                    'end'         => $current->copy()->addMinutes($durationMinutes),
                     'status'      => 'scheduled',
                     'notes'       => $data['notes'] ?? null,
                     'parent_id'   => $appointment->id,
                 ]);
 
                 $child->services()->sync($pivotData);
-
-                $current->addDays($days);
             }
         }
 
@@ -177,6 +196,9 @@ class AppointmentController extends Controller
             'end'           => 'sometimes|required|date|after:start',
             'status'        => 'nullable|string|in:scheduled,confirmed,in_progress,completed,cancelled,no_show',
             'notes'         => 'nullable|string',
+            'recurring_frequency' => 'nullable|string|in:daily,weekly,biweekly,monthly',
+            'recurring_until'    => 'nullable|date',
+            'update_all_series'  => 'nullable|boolean',
         ];
 
         if (!auth()->user()->isAdmin()) {
@@ -184,6 +206,7 @@ class AppointmentController extends Controller
         }
 
         $data = $request->validate($rules);
+        $updateAll = !empty($data['update_all_series']);
 
         if (!empty($data['service_ids'])) {
             $services = Service::whereIn('id', $data['service_ids'])->get();
@@ -198,13 +221,26 @@ class AppointmentController extends Controller
             }
         }
 
-        $wasCompleted = $appointment->status !== 'completed' && ($data['status'] ?? '') === 'completed';
-        $wasCancelled = $appointment->status !== 'cancelled' && ($data['status'] ?? '') === 'cancelled';
+        $oldStatus = $appointment->status;
+        $wasCompleted = $oldStatus !== 'completed' && ($data['status'] ?? '') === 'completed';
+        $wasCancelled = $oldStatus !== 'cancelled' && ($data['status'] ?? '') === 'cancelled';
+
+        // Se está cancelando/completando e tem update_all_series, aplicar a todos os filhos
+        if ($updateAll && ($wasCompleted || $wasCancelled) && $appointment->isRecurring()) {
+            $appointment->children()->update(['status' => $data['status']]);
+        }
 
         $appointment->update($data);
 
         if (!empty($pivotData)) {
             $appointment->services()->sync($pivotData);
+
+            // Sincronizar serviços em todos os filhos também
+            if ($updateAll && $appointment->isRecurring()) {
+                foreach ($appointment->children as $child) {
+                    $child->services()->sync($pivotData);
+                }
+            }
         }
 
         $totalPrice = $appointment->services()->sum('appointment_service.price');
@@ -265,8 +301,14 @@ class AppointmentController extends Controller
         return response()->json(['success' => true, 'appointment' => $appointment->fresh()->load(['customer', 'services', 'user', 'payment'])]);
     }
 
-    public function destroy(Appointment $appointment)
+    public function destroy(Request $request, Appointment $appointment)
     {
+        $deleteAll = $request->boolean('delete_all_series');
+
+        if ($deleteAll && $appointment->isRecurring()) {
+            $appointment->children()->delete();
+        }
+
         $appointment->delete();
         return response()->json(['success' => true]);
     }

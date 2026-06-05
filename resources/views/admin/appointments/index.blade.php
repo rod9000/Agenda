@@ -188,6 +188,37 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             document.getElementById('detail-notes').textContent = props.notes || '—';
 
+            // Recurring info
+            var recurringRow = document.getElementById('detail-recurring-row');
+            var recurringEl = document.getElementById('detail-recurring');
+            var freqLabels = { daily: 'Diariamente', weekly: 'Semanalmente', biweekly: 'Quinzenalmente', monthly: 'Mensalmente' };
+            var editRecurringSection = document.getElementById('edit-recurring-section');
+            var editRecurringFreq = document.getElementById('edit-recurring-frequency');
+            var editRecurringUntil = document.getElementById('edit-recurring-until');
+            var updateAllCheck = document.getElementById('edit-update-all-series');
+            var btnDeleteSeries = document.getElementById('btnDeleteSeries');
+            if (props.recurring && props.recurring.frequency) {
+                recurringRow.classList.remove('hidden');
+                recurringEl.textContent = freqLabels[props.recurring.frequency] || props.recurring.frequency + ' até ' + props.recurring.until;
+                editRecurringSection.classList.remove('hidden');
+                editRecurringFreq.value = props.recurring.frequency;
+                editRecurringUntil.value = props.recurring.until;
+                updateAllCheck.disabled = false;
+                updateAllCheck.checked = false;
+                btnDeleteSeries.classList.remove('hidden');
+            } else if (props.recurring && props.recurring.parent_id) {
+                recurringRow.classList.remove('hidden');
+                recurringEl.textContent = 'Parte de série recorrente';
+                editRecurringSection.classList.add('hidden');
+                btnDeleteSeries.classList.add('hidden');
+            } else {
+                recurringRow.classList.add('hidden');
+                editRecurringSection.classList.add('hidden');
+                editRecurringFreq.value = '';
+                editRecurringUntil.value = '';
+                btnDeleteSeries.classList.add('hidden');
+            }
+
             document.getElementById('btnComplete').style.display = (props.status === 'completed' || props.status === 'cancelled' || props.status === 'no_show') ? 'none' : 'inline-block';
             document.getElementById('btnCancel').style.display = (props.status === 'completed' || props.status === 'cancelled' || props.status === 'no_show') ? 'none' : 'inline-block';
 

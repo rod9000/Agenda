@@ -19,12 +19,16 @@ class Appointment extends Model
         'notes',
         'confirmation_token',
         'confirmed_at',
+        'recurring_frequency',
+        'recurring_until',
+        'parent_id',
     ];
 
     protected $casts = [
         'start' => 'datetime',
         'end' => 'datetime',
         'confirmed_at' => 'datetime',
+        'recurring_until' => 'date',
     ];
 
     protected static function boot()
@@ -70,5 +74,35 @@ class Appointment extends Model
     public function hasPayment()
     {
         return $this->payment()->exists();
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(self::class, 'parent_id');
+    }
+
+    public function isRecurring()
+    {
+        return !is_null($this->recurring_frequency);
+    }
+
+    public function isChild()
+    {
+        return !is_null($this->parent_id);
+    }
+
+    public function scopeRecurring($query)
+    {
+        return $query->whereNotNull('recurring_frequency');
+    }
+
+    public function scopeChildren($query)
+    {
+        return $query->whereNotNull('parent_id');
     }
 }

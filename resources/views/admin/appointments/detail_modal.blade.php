@@ -16,12 +16,16 @@
                 <div class="flex justify-between"><span class="font-medium text-brand-600">Telefone:</span> <span id="detail-phone" class="text-stone-800"></span></div>
                 <div class="flex justify-between"><span class="font-medium text-brand-600">Pagamento:</span> <span id="detail-payment" class="text-stone-800"></span></div>
                 <div class="flex justify-between"><span class="font-medium text-brand-600">Obs:</span> <span id="detail-notes" class="text-stone-800"></span></div>
+                <div id="detail-recurring-row" class="hidden">
+                    <div class="flex justify-between"><span class="font-medium text-brand-600">Recorrência:</span> <span id="detail-recurring" class="text-amber-700 font-semibold"></span></div>
+                </div>
             </div>
 
             <div class="flex justify-between mt-6">
                 <div class="space-x-2">
                     <button id="btnComplete" onclick="completeAppointment()" class="btn-pastel-success text-sm px-3 py-2">Concluir</button>
                     <button id="btnCancel" onclick="cancelAppointment()" class="btn-pastel-danger text-sm px-3 py-2">Cancelar</button>
+                    <button id="btnDeleteSeries" onclick="deleteSeries()" class="hidden btn-pastel-danger text-sm px-3 py-2">Deletar Série</button>
                 </div>
                 <div class="space-x-2">
                     <button onclick="showEditForm()" class="btn-pastel-primary text-sm px-3 py-2">Editar</button>
@@ -127,6 +131,30 @@
                     <textarea name="notes" id="edit-notes" rows="2" class="input-pastel"></textarea>
                 </div>
 
+                <div id="edit-recurring-section" class="hidden mb-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+                    <h4 class="font-semibold text-sm text-amber-800 mb-2">Agendamento Recorrente</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-medium text-amber-700">Repetir</label>
+                            <select name="recurring_frequency" id="edit-recurring-frequency" class="input-pastel text-sm">
+                                <option value="">Não repetir</option>
+                                <option value="daily">Diariamente</option>
+                                <option value="weekly">Semanalmente</option>
+                                <option value="biweekly">Quinzenalmente</option>
+                                <option value="monthly">Mensalmente</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-amber-700">Até</label>
+                            <input type="date" name="recurring_until" id="edit-recurring-until" class="input-pastel text-sm">
+                        </div>
+                    </div>
+                    <label class="flex items-center gap-2 mt-2 text-xs text-amber-700">
+                        <input type="checkbox" name="update_all_series" id="edit-update-all-series" value="1" class="rounded border-amber-300 text-amber-600">
+                        Aplicar a todos da série
+                    </label>
+                </div>
+
                 <div class="flex justify-end gap-2">
                     <button type="button" onclick="showDetailView()" class="btn-pastel-secondary">Cancelar</button>
                     <button type="submit" class="btn-pastel-primary">Salvar</button>
@@ -198,6 +226,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 notes: document.getElementById('edit-notes').value,
             };
 
+            var recurringFreq = document.getElementById('edit-recurring-frequency');
+            var recurringUntil = document.getElementById('edit-recurring-until');
+            if (recurringFreq && recurringFreq.value) {
+                data.recurring_frequency = recurringFreq.value;
+                data.recurring_until = recurringUntil.value;
+            }
+            var updateAllCheck = document.getElementById('edit-update-all-series');
+            if (updateAllCheck && updateAllCheck.checked) {
+                data.update_all_series = true;
+            }
+
             fetch('/admin/appointments/' + currentEventId, {
                 method: 'PUT',
                 headers: {
@@ -238,6 +277,24 @@ window.completeAppointment = function() {
 window.cancelAppointment = function() {
     if (!confirm('Cancelar este atendimento?')) return;
     updateAppointmentStatus('cancelled');
+};
+
+window.deleteSeries = function() {
+    if (!confirm('Deletar toda a série de agendamentos recorrentes?')) return;
+    if (!window.currentEventId) return;
+    fetch('/admin/appointments/' + window.currentEventId, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ delete_all_series: true })
+    }).then(function(r) { return r.json(); }).then(function(resp) {
+        if (resp.success) {
+            closeDetailModal();
+            calendar.refetchEvents();
+        }
+    });
 };
 
 window.updateAppointmentStatus = function(status) {
