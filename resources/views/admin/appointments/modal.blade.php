@@ -69,15 +69,27 @@
 
             <div class="mb-4">
                 <label class="block text-sm font-medium text-brand-700 mb-1">Procedimentos</label>
-                <div id="serviceCheckboxes" class="space-y-2 max-h-48 overflow-y-auto p-3 bg-brand-50/50 rounded-xl border border-brand-100">
-                    @foreach($services as $s)
-                    <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/80 cursor-pointer transition-all">
-                        <input type="checkbox" name="service_ids[]" value="{{ $s->id }}" data-duration="{{ $s->duration_min }}" data-price="{{ $s->price }}"
-                               class="w-4 h-4 rounded border-brand-300 text-brand-600 focus:ring-brand-400 service-checkbox"
-                               onchange="updateServiceSelection()">
-                        <span class="text-sm text-stone-700">{{ $s->name }} <span class="text-xs text-stone-400">({{ $s->duration_min }}min - R$ {{ number_format($s->price, 2, ',', '.') }})</span></span>
-                    </label>
-                    @endforeach
+                <div class="sel-wrap sel-multi" id="serviceSelectWrap">
+                    <div class="sel-trigger" data-target="service_ids">
+                        <span class="placeholder-text">Selecione os procedimentos...</span>
+                        <span class="arrow">&#9660;</span>
+                    </div>
+                    <div class="sel-dropdown">
+                        <input type="text" class="sel-search" placeholder="Buscar procedimento..." autocomplete="off">
+                        <div class="sel-options">
+                            @foreach($services as $s)
+                            <label class="sel-option sel-option-multi" data-value="{{ $s->id }}">
+                                <input type="checkbox" class="sel-checkbox" data-duration="{{ $s->duration_min }}" data-price="{{ $s->price }}">
+                                <span>{{ $s->name }} <span class="text-xs text-stone-400">({{ $s->duration_min }}min - R$ {{ number_format($s->price, 2, ',', '.') }})</span></span>
+                            </label>
+                            @endforeach
+                        </div>
+                    </div>
+                    <select name="service_ids[]" multiple class="hidden">
+                        @foreach($services as $s)
+                        <option value="{{ $s->id }}">{{ $s->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <p id="serviceCount" class="text-xs text-stone-400 mt-1">Nenhum procedimento selecionado</p>
             </div>
@@ -237,11 +249,141 @@ window.initSearchableSelect = function(wrap) {
     });
 };
 
+window.setSearchableMultiValue = function(wrap, values) {
+    const checkboxes = wrap.querySelectorAll('.sel-checkbox');
+    checkboxes.forEach(function(cb) {
+        const opt = cb.closest('.sel-option-multi');
+        const checked = values.includes(opt.dataset.value);
+        cb.checked = checked;
+        opt.classList.toggle('selected', checked);
+    });
+    if (typeof wrap.__syncSelect === 'function') {
+        wrap.__syncSelect();
+    }
+};
+
+window.initSearchableMultiSelect = function(wrap) {
+    const trigger = wrap.querySelector('.sel-trigger');
+    const dropdown = wrap.querySelector('.sel-dropdown');
+    const search = wrap.querySelector('.sel-search');
+    const options = wrap.querySelectorAll('.sel-option-multi');
+    const select = wrap.querySelector('select[multiple]');
+    const placeholderText = trigger.querySelector('.placeholder-text');
+
+    wrap.__syncSelect = function() {
+        const checked = wrap.querySelectorAll('.sel-checkbox:checked');
+        const count = checked.length;
+
+        let st = trigger.querySelector('.selected-text');
+        if (count > 0) {
+            const names = Array.from(checked).map(function(cb) {
+                return cb.closest('.sel-option-multi').querySelector('span').textContent.trim();
+            });
+            const text = count + ' procedimento(s) selecionado(s)';
+            if (!st) {
+                st = document.createElement('span');
+                st.className = 'selected-text';
+                trigger.insertBefore(st, placeholderText);
+            }
+            st.textContent = text;
+            st.title = names.join(', ');
+            placeholderText.style.display = 'none';
+        } else {
+            if (st) st.remove();
+            placeholderText.style.display = '';
+        }
+
+        select.innerHTML = '';
+        checked.forEach(function(cb) {
+            const opt = document.createElement('option');
+            opt.value = cb.closest('.sel-option-multi').dataset.value;
+            opt.selected = true;
+            select.appendChild(opt);
+        });
+
+        if (typeof window.updateServiceSelection === 'function') {
+            window.updateServiceSelection();
+        }
+    };
+
+    var syncSelect = wrap.__syncSelect;
+
+    function filterOptions(term) {
+        const lower = term.toLowerCase();
+        let visible = 0;
+        options.forEach(function(opt) {
+            const match = opt.textContent.toLowerCase().includes(lower);
+            opt.style.display = match ? '' : 'none';
+            if (match) visible++;
+        });
+        const noResults = wrap.querySelector('.sel-no-results');
+        if (visible === 0) {
+            if (!noResults) {
+                const el = document.createElement('div');
+                el.className = 'sel-no-results';
+                el.textContent = 'Nenhum resultado encontrado';
+                wrap.querySelector('.sel-options').appendChild(el);
+            }
+        } else {
+            if (noResults) noResults.remove();
+        }
+    }
+
+    trigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const isOpen = dropdown.classList.contains('open');
+        document.querySelectorAll('.sel-dropdown.open').forEach(function(d) {
+            if (d !== dropdown) d.classList.remove('open');
+        });
+        document.querySelectorAll('.sel-trigger.open').forEach(function(t) {
+            if (t !== trigger) t.classList.remove('open');
+        });
+        if (isOpen) {
+            dropdown.classList.remove('open');
+            trigger.classList.remove('open');
+        } else {
+            dropdown.classList.add('open');
+            trigger.classList.add('open');
+            search.value = '';
+            search.focus();
+            filterOptions('');
+        }
+    });
+
+    search.addEventListener('input', function() {
+        filterOptions(this.value);
+    });
+
+    options.forEach(function(opt) {
+        const checkbox = opt.querySelector('.sel-checkbox');
+        opt.addEventListener('click', function(e) {
+            e.preventDefault();
+            checkbox.checked = !checkbox.checked;
+            this.classList.toggle('selected', checkbox.checked);
+            syncSelect();
+        });
+        checkbox.addEventListener('change', function() {
+            opt.classList.toggle('selected', this.checked);
+            syncSelect();
+        });
+    });
+
+    document.addEventListener('click', function() {
+        dropdown.classList.remove('open');
+        trigger.classList.remove('open');
+    });
+
+    dropdown.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+};
+
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('#newAppointmentModal .sel-wrap').forEach(window.initSearchableSelect);
+    document.querySelectorAll('#newAppointmentModal .sel-wrap:not(.sel-multi)').forEach(window.initSearchableSelect);
+    document.querySelectorAll('#newAppointmentModal .sel-multi').forEach(window.initSearchableMultiSelect);
 
     window.updateServiceSelection = function() {
-        const checkboxes = document.querySelectorAll('#serviceCheckboxes .service-checkbox:checked');
+        const checkboxes = document.querySelectorAll('#serviceSelectWrap .sel-checkbox:checked');
         const count = checkboxes.length;
         const countEl = document.getElementById('serviceCount');
         countEl.textContent = count === 0 ? 'Nenhum procedimento selecionado' : count + ' procedimento(s) selecionado(s)';
@@ -280,7 +422,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const startEl = document.getElementById('start');
     if (startEl) {
         startEl.addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('#serviceCheckboxes .service-checkbox:checked');
+            const checkboxes = document.querySelectorAll('#serviceSelectWrap .sel-checkbox:checked');
             let totalMinutes = 0;
             checkboxes.forEach(function(cb) {
                 totalMinutes += parseInt(cb.dataset.duration) || 0;

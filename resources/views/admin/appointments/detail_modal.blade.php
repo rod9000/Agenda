@@ -97,15 +97,27 @@
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-brand-700 mb-1">Procedimentos</label>
-                    <div id="editServiceCheckboxes" class="space-y-2 max-h-48 overflow-y-auto p-3 bg-brand-50/50 rounded-xl border border-brand-100">
-                        @foreach($services as $s)
-                        <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/80 cursor-pointer transition-all">
-                            <input type="checkbox" name="service_ids[]" value="{{ $s->id }}" data-duration="{{ $s->duration_min }}"
-                                   class="w-4 h-4 rounded border-brand-300 text-brand-600 focus:ring-brand-400 edit-service-checkbox"
-                                   onchange="updateEditServiceSelection()">
-                            <span class="text-sm text-stone-700">{{ $s->name }} <span class="text-xs text-stone-400">({{ $s->duration_min }}min)</span></span>
-                        </label>
-                        @endforeach
+                    <div class="sel-wrap sel-multi" id="editServiceSelectWrap">
+                        <div class="sel-trigger" data-target="edit-service_ids">
+                            <span class="placeholder-text">Selecione os procedimentos...</span>
+                            <span class="arrow">&#9660;</span>
+                        </div>
+                        <div class="sel-dropdown">
+                            <input type="text" class="sel-search" placeholder="Buscar procedimento..." autocomplete="off">
+                            <div class="sel-options">
+                                @foreach($services as $s)
+                                <label class="sel-option sel-option-multi" data-value="{{ $s->id }}">
+                                    <input type="checkbox" class="sel-checkbox" data-duration="{{ $s->duration_min }}">
+                                    <span>{{ $s->name }} <span class="text-xs text-stone-400">({{ $s->duration_min }}min)</span></span>
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        <select name="service_ids[]" multiple class="hidden">
+                            @foreach($services as $s)
+                            <option value="{{ $s->id }}">{{ $s->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <p id="editServiceCount" class="text-xs text-stone-400 mt-1">Nenhum procedimento selecionado</p>
                 </div>
@@ -129,10 +141,11 @@
 let currentEventId = null;
 
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('#detailEdit .sel-wrap').forEach(initSearchableSelect);
+    document.querySelectorAll('#detailEdit .sel-wrap:not(.sel-multi)').forEach(initSearchableSelect);
+    document.querySelectorAll('#detailEdit .sel-multi').forEach(initSearchableMultiSelect);
 
     window.updateEditServiceSelection = function() {
-        const checkboxes = document.querySelectorAll('#editServiceCheckboxes .edit-service-checkbox:checked');
+        const checkboxes = document.querySelectorAll('#editServiceSelectWrap .sel-checkbox:checked');
         const count = checkboxes.length;
         const countEl = document.getElementById('editServiceCount');
         countEl.textContent = count === 0 ? 'Nenhum procedimento selecionado' : count + ' procedimento(s) selecionado(s)';
@@ -155,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const editStartEl = document.getElementById('edit-start');
     if (editStartEl) {
         editStartEl.addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('#editServiceCheckboxes .edit-service-checkbox:checked');
+            const checkboxes = document.querySelectorAll('#editServiceSelectWrap .sel-checkbox:checked');
             let maxDuration = 0;
             checkboxes.forEach(function(cb) {
                 const d = parseInt(cb.dataset.duration) || 0;
@@ -173,8 +186,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (editForm) {
         editForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            const serviceCheckboxes = document.querySelectorAll('#editServiceCheckboxes .edit-service-checkbox:checked');
-            const serviceIds = Array.from(serviceCheckboxes).map(function(cb) { return cb.value; });
+            const serviceCheckboxes = document.querySelectorAll('#editServiceSelectWrap .sel-checkbox:checked');
+            const serviceIds = Array.from(serviceCheckboxes).map(function(cb) { return cb.closest('.sel-option-multi').dataset.value; });
 
             const data = {
                 customer_id: document.getElementById('edit-customer').value,

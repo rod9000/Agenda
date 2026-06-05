@@ -21,6 +21,8 @@ files = [
     ("database/migrations/2026_06_03_000008_create_blocked_slots_table.php", "/htdocs/database/migrations/2026_06_03_000008_create_blocked_slots_table.php"),
     ("database/migrations/2026_06_03_000009_add_recurring_to_appointments_table.php", "/htdocs/database/migrations/2026_06_03_000009_add_recurring_to_appointments_table.php"),
     ("database/migrations/2026_06_03_000010_create_product_service_table.php", "/htdocs/database/migrations/2026_06_03_000010_create_product_service_table.php"),
+    ("database/migrations/2026_06_03_000011_create_appointment_service_table.php", "/htdocs/database/migrations/2026_06_03_000011_create_appointment_service_table.php"),
+    ("database/migrations/2026_06_03_000012_add_confirmation_token_to_appointments_table.php", "/htdocs/database/migrations/2026_06_03_000012_add_confirmation_token_to_appointments_table.php"),
 
     # Models
     ("app/Models/Service.php", "/htdocs/app/Models/Service.php"),
@@ -88,7 +90,6 @@ files = [
     ("resources/views/admin/settings/working-hours.blade.php", "/htdocs/resources/views/admin/settings/working-hours.blade.php"),
     ("resources/views/admin/logs/index.blade.php", "/htdocs/resources/views/admin/logs/index.blade.php"),
     ("resources/views/public/booking.blade.php", "/htdocs/resources/views/public/booking.blade.php"),
-    ("app/Http/Controllers/PublicController.php", "/htdocs/app/Http/Controllers/PublicController.php"),
     ("resources/views/admin/appointments/index.blade.php", "/htdocs/resources/views/admin/appointments/index.blade.php"),
     ("resources/views/admin/appointments/modal.blade.php", "/htdocs/resources/views/admin/appointments/modal.blade.php"),
     ("resources/views/admin/appointments/detail_modal.blade.php", "/htdocs/resources/views/admin/appointments/detail_modal.blade.php"),
@@ -97,43 +98,77 @@ files = [
     ("public/css/app.css", "/htdocs/public/css/app.css"),
     ("public/js/app.js", "/htdocs/public/js/app.js"),
 
-    # Env
+    # Env (locale .env.ftp -> servidor .env)
     (".env.ftp", "/htdocs/.env"),
 
     # Migration trigger
     ("_migrate.php", "/htdocs/_migrate.php"),
+
+    # Cache cleanup (emergency)
+    ("_clear_cache.php", "/htdocs/_clear_cache.php"),
 ]
 
+# Arquivos de cache que PRECISAM ser deletados no servidor (causam o erro 500)
+cache_files_to_delete = [
+    "/htdocs/bootstrap/cache/packages.php",
+    "/htdocs/bootstrap/cache/services.php",
+]
+
+def full_remote_path(remote_file):
+    """Converte /htdocs/... para o caminho remoto completo"""
+    return '/' + REMOTE_BASE + remote_file[len('/htdocs'):]
+
+def ensure_remote_dir(ftp, remote_file):
+    """Garante que o diretorio remoto existe"""
+    remote_dir = os.path.dirname(remote_file)
+    try:
+        ftp.cwd(remote_dir)
+    except:
+        parts = remote_dir.strip('/').split('/')
+        current = ''
+        for part in parts:
+            current += '/' + part
+            try:
+                ftp.cwd(current)
+            except:
+                ftp.mkd(current)
+                ftp.cwd(current)
+        ftp.cwd('/')
+
+def delete_remote_file(ftp, remote_file):
+    """Deleta arquivo remoto se existir"""
+    try:
+        ftp.delete(remote_file)
+        print(f"Deletado (cache): {remote_file}")
+        return True
+    except:
+        return False
+
 try:
-    # Conectar ao FTP
     ftp = ftplib.FTP(ftp_host, ftp_user, ftp_pass)
     print(f"Conectado ao FTP: {ftp_host}")
 
+    # PASSO 1: Deletar arquivos de cache problemáticos
+    print("\n--- Limpando caches antigos ---")
+    deleted_count = 0
+    for cache_file in cache_files_to_delete:
+        remote = full_remote_path(cache_file)
+        if delete_remote_file(ftp, remote):
+            deleted_count += 1
+    if deleted_count == 0:
+        print("(nenhum cache encontrado - talvez ja tenham sido removidos)")
+
+    # PASSO 2: Upload dos arquivos
+    print("\n--- Enviando arquivos ---")
     uploaded = 0
     skipped = 0
 
     for local_file, remote_file in files:
-        # Replace /htdocs with domain-specific path
-        remote_file = '/' + REMOTE_BASE + remote_file[len('/htdocs'):]
+        remote_path = full_remote_path(remote_file)
         if os.path.exists(local_file):
-            # Cria diretorios remotos se necessario
-            remote_dir = os.path.dirname(remote_file)
-            try:
-                ftp.cwd(remote_dir)
-            except:
-                parts = remote_dir.strip('/').split('/')
-                current = ''
-                for part in parts:
-                    current += '/' + part
-                    try:
-                        ftp.cwd(current)
-                    except:
-                        ftp.mkd(current)
-                        ftp.cwd(current)
-                ftp.cwd('/')
-
+            ensure_remote_dir(ftp, remote_path)
             with open(local_file, 'rb') as f:
-                ftp.storbinary(f'STOR {remote_file}', f)
+                ftp.storbinary(f'STOR {remote_path}', f)
             print(f"OK: {local_file}")
             uploaded += 1
         else:
@@ -142,7 +177,8 @@ try:
 
     ftp.quit()
     print(f"\nUpload completo! {uploaded} enviados, {skipped} ignorados.")
-    print(f"\nAcesse: https://nabiesteticaagenda.freehosting.dev/_migrate.php para rodar as migrations.")
+    print(f"\nAntes de acessar o site, rode as migrations:")
+    print(f"https://nabiesteticaagenda.freehosting.dev/_migrate.php")
 
 except Exception as e:
     print(f"Erro: {e}")

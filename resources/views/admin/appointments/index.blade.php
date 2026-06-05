@@ -3,7 +3,7 @@
 @section('header')
     <div class="flex justify-between items-center">
         <h2 class="font-semibold text-xl text-brand-800 leading-tight">Agenda</h2>
-        <button onclick="document.getElementById('newAppointmentModal').classList.remove('hidden'); document.querySelectorAll('#newAppointmentModal .sel-wrap').forEach(function(w) { w.querySelector('select').value = ''; var st = w.querySelector('.selected-text'); if (st) { st.remove(); } var pt = w.querySelector('.placeholder-text'); if (pt) pt.style.display = ''; });" class="btn-pastel-primary">
+        <button onclick="document.getElementById('newAppointmentModal').classList.remove('hidden'); document.querySelectorAll('#newAppointmentModal .sel-wrap:not(.sel-multi)').forEach(function(w) { w.querySelector('select').value = ''; var st = w.querySelector('.selected-text'); if (st) { st.remove(); } var pt = w.querySelector('.placeholder-text'); if (pt) pt.style.display = ''; }); document.querySelectorAll('#newAppointmentModal .sel-multi').forEach(function(w) { w.querySelectorAll('.sel-checkbox').forEach(function(cb) { cb.checked = false; cb.closest('.sel-option-multi').classList.remove('selected'); }); if (typeof w.__syncSelect === 'function') w.__syncSelect(); });" class="btn-pastel-primary">
             + Novo Agendamento
         </button>
     </div>
@@ -62,6 +62,24 @@
     .sel-option:hover { background: #E8EDDB; }
     .sel-option.selected { background: #E8EDDB; color: #616C4B; font-weight: 600; }
     .sel-no-results { padding: 14px; text-align: center; color: #a8a29e; font-size: 14px; }
+    .sel-option-multi {
+        display: flex !important;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #444;
+        transition: background 0.15s;
+    }
+    .sel-option-multi:hover { background: #E8EDDB; }
+    .sel-option-multi.selected { background: #E8EDDB; color: #616C4B; font-weight: 600; }
+    .sel-checkbox {
+        width: 16px;
+        height: 16px;
+        accent-color: #7B8564;
+        flex-shrink: 0;
+    }
 </style>
 @endpush
 
@@ -131,11 +149,11 @@ document.addEventListener('DOMContentLoaded', function() {
             window.setSearchableValue(document.querySelector('#edit-customer').closest('.sel-wrap'), props.customer_id || '');
             window.setSearchableValue(document.querySelector('#edit-user').closest('.sel-wrap'), props.user_id || '');
 
-            const editServiceCheckboxes = document.querySelectorAll('#editServiceCheckboxes .edit-service-checkbox');
             const selectedIds = props.service_ids || [];
-            editServiceCheckboxes.forEach(function(cb) {
-                cb.checked = selectedIds.includes(cb.value);
-            });
+            const editWrap = document.getElementById('editServiceSelectWrap');
+            if (editWrap && typeof window.setSearchableMultiValue === 'function') {
+                window.setSearchableMultiValue(editWrap, selectedIds);
+            }
             if (typeof window.updateEditServiceSelection === 'function') {
                 window.updateEditServiceSelection();
             }
