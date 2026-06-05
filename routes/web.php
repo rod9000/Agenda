@@ -34,6 +34,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     Route::get('settings/working-hours', [SettingsController::class, 'workingHours'])->name('settings.working-hours');
     Route::post('settings/working-hours', [SettingsController::class, 'workingHoursStore'])->name('settings.working-hours.store');
+    Route::post('settings/working-hours/copy', [SettingsController::class, 'workingHoursCopy'])->name('settings.working-hours.copy');
     Route::get('settings/blocked-slots', [SettingsController::class, 'blockedSlots'])->name('settings.blocked-slots');
     Route::post('settings/blocked-slots', [SettingsController::class, 'blockedSlotsStore'])->name('settings.blocked-slots.store');
     Route::delete('settings/blocked-slots/{blockedSlot}', [SettingsController::class, 'blockedSlotsDestroy'])->name('settings.blocked-slots.destroy');

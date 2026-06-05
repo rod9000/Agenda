@@ -8,6 +8,7 @@ use App\Models\Commission;
 use App\Models\Customer;
 use App\Models\NotificationLog;
 use App\Models\Service;
+use App\Models\WorkingHour;
 use App\Services\WhatsAppService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -25,7 +26,9 @@ class AppointmentController extends Controller
             $users = \App\Models\User::where('id', auth()->id())->orderBy('name')->get();
         }
 
-        return view('admin.appointments.index', compact('customers', 'services', 'users'));
+        $workingHours = WorkingHour::where('active', true)->get()->groupBy('user_id');
+
+        return view('admin.appointments.index', compact('customers', 'services', 'users', 'workingHours'));
     }
 
     public function calendarData(Request $request)

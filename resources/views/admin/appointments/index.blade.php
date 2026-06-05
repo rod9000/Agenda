@@ -12,6 +12,17 @@
 @section('content')
 <div class="py-6">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+            <label class="text-sm font-medium text-brand-700">Profissional:</label>
+            <select id="userFilter" class="input-pastel min-w-[200px]">
+                @if(auth()->user()->isAdmin())
+                <option value="">Todos os profissionais</option>
+                @endif
+                @foreach($users as $u)
+                <option value="{{ $u->id }}">{{ $u->name }}</option>
+                @endforeach
+            </select>
+        </div>
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4">
             <div id="calendar"></div>
         </div>
@@ -24,7 +35,7 @@
 @endsection
 
 @push('styles')
-<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+
 <style>
     .fc-event { cursor: pointer; }
     .fc-event-title { font-weight: 500; }
@@ -84,9 +95,36 @@
 @endpush
 
 @push('scripts')
-<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
-<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.10/locales/pt-br.global.min.js'></script>
+<script src='{{ asset("vendor/fullcalendar/index.global.min.js") }}'></script>
+<script src='{{ asset("vendor/fullcalendar/pt-br.global.min.js") }}'></script>
 <script>
+const workingHoursData = @json($workingHours);
+const defaultSlotMin = '07:00:00';
+const defaultSlotMax = '20:00:00';
+
+function getSlotLimits(userId) {
+    if (!userId) return { min: defaultSlotMin, max: defaultSlotMax };
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const userHours = workingHoursData[userId];
+    if (!userHours) return { min: '08:00:00', max: '18:00:00' };
+    const dayBlocks = userHours.filter(function(h) { return h.day_of_week === dayOfWeek && h.active; });
+    if (dayBlocks.length === 0) return { min: '08:00:00', max: '18:00:00' };
+    var min = dayBlocks[0].start_time;
+    var max = dayBlocks[0].end_time;
+    for (var i = 1; i < dayBlocks.length; i++) {
+        if (dayBlocks[i].start_time < min) min = dayBlocks[i].start_time;
+        if (dayBlocks[i].end_time > max) max = dayBlocks[i].end_time;
+    }
+    return { min: min, max: max };
+}
+
+function updateSlotLimits(userId) {
+    const limits = getSlotLimits(userId);
+    calendar.setOption('slotMinTime', limits.min + ':00');
+    calendar.setOption('slotMaxTime', limits.max + ':00');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     window.calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
         initialView: 'timeGridDay',
@@ -109,12 +147,19 @@ document.addEventListener('DOMContentLoaded', function() {
             minute: '2-digit',
             hour12: false
         },
-        slotMinTime: '07:00:00',
-        slotMaxTime: '20:00:00',
+        slotMinTime: defaultSlotMin,
+        slotMaxTime: defaultSlotMax,
         allDaySlot: false,
         editable: true,
         selectable: true,
-        events: '/admin/appointments/calendar-data',
+        events: {
+            url: '/admin/appointments/calendar-data',
+            extraParams: function() {
+                return {
+                    user_id: document.getElementById('userFilter').value
+                };
+            }
+        },
         select: function(info) {
             document.getElementById('start').value = info.startStr.slice(0, 16);
             document.getElementById('end').value = info.endStr.slice(0, 16);
@@ -181,6 +226,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     calendar.render();
+
+    // Filtro por profissional
+    var initialUserId = document.getElementById('userFilter').value;
+    if (initialUserId) updateSlotLimits(initialUserId);
+
+    document.getElementById('userFilter').addEventListener('change', function() {
+        updateSlotLimits(this.value);
+        calendar.refetchEvents();
+    });
+
+    // Recalcular slotMinTime/slotMaxTime ao navegar (mudança de dia)
+    calendar.on('datesSet', function() {
+        var userId = document.getElementById('userFilter').value;
+        if (userId) updateSlotLimits(userId);
+    });
 
     // Atualização em Tempo Real (Polling a cada 30 segundos)
     setInterval(() => {

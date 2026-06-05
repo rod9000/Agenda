@@ -19,8 +19,10 @@ class SettingsController extends Controller
         $hours = [];
         foreach ($users as $user) {
             foreach (range(0, 6) as $day) {
-                $wh = WorkingHour::where('user_id', $user->id)->where('day_of_week', $day)->first();
-                $hours[$user->id][$day] = $wh;
+                $hours[$user->id][$day] = WorkingHour::where('user_id', $user->id)
+                    ->where('day_of_week', $day)
+                    ->orderBy('start_time')
+                    ->get();
             }
         }
 
@@ -30,23 +32,67 @@ class SettingsController extends Controller
     public function workingHoursStore(Request $request)
     {
         $data = $request->validate([
-            'user_id'     => 'required|exists:users,id',
-            'day_of_week' => 'required|integer|between:0,6',
-            'start_time'  => 'nullable|date_format:H:i',
-            'end_time'    => 'nullable|date_format:H:i|after:start_time',
-            'active'      => 'boolean',
+            'user_id'           => 'required|exists:users,id',
+            'day_of_week'       => 'required|integer|between:0,6',
+            'blocks'            => 'required|array|min:1',
+            'blocks.*.start'    => 'required|date_format:H:i',
+            'blocks.*.end'      => 'required|date_format:H:i|after:blocks.*.start',
         ]);
 
-        WorkingHour::updateOrCreate(
-            ['user_id' => $data['user_id'], 'day_of_week' => $data['day_of_week']],
-            [
-                'start_time' => $data['start_time'] ?? null,
-                'end_time'   => $data['end_time'] ?? null,
-                'active'     => $request->boolean('active', true),
-            ]
-        );
+        WorkingHour::where('user_id', $data['user_id'])
+            ->where('day_of_week', $data['day_of_week'])
+            ->delete();
 
-        return redirect()->back()->with('success', 'Horário atualizado com sucesso!');
+        foreach ($data['blocks'] as $block) {
+            WorkingHour::create([
+                'user_id'     => $data['user_id'],
+                'day_of_week' => $data['day_of_week'],
+                'start_time'  => $block['start'],
+                'end_time'    => $block['end'],
+                'active'      => true,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Horários atualizados com sucesso!');
+    }
+
+    public function workingHoursCopy(Request $request)
+    {
+        $data = $request->validate([
+            'user_id'      => 'required|exists:users,id',
+            'source_day'   => 'required|integer|between:0,6',
+            'target_days'  => 'required|array|min:1',
+            'target_days.*' => 'integer|between:0,6',
+        ]);
+
+        $blocks = WorkingHour::where('user_id', $data['user_id'])
+            ->where('day_of_week', $data['source_day'])
+            ->orderBy('start_time')
+            ->get();
+
+        if ($blocks->isEmpty()) {
+            return redirect()->back()->with('error', 'O dia de origem não possui horários definidos.');
+        }
+
+        foreach ($data['target_days'] as $targetDay) {
+            WorkingHour::where('user_id', $data['user_id'])
+                ->where('day_of_week', $targetDay)
+                ->delete();
+
+            foreach ($blocks as $block) {
+                WorkingHour::create([
+                    'user_id'     => $data['user_id'],
+                    'day_of_week' => $targetDay,
+                    'start_time'  => $block->start_time,
+                    'end_time'    => $block->end_time,
+                    'active'      => true,
+                ]);
+            }
+        }
+
+        $dayNames = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+        $targetLabels = array_map(fn($d) => $dayNames[$d], $data['target_days']);
+        return redirect()->back()->with('success', 'Horários copiados de ' . $dayNames[$data['source_day']] . ' para: ' . implode(', ', $targetLabels) . '.');
     }
 
     public function blockedSlots()
