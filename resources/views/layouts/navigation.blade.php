@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-gradient-to-r from-brand-100 via-yellow-50 to-brand-100 border-b border-brand-200 shadow-sm">
+<nav x-data="{ open: false }" class="bg-gradient-to-r from-brand-100 via-yellow-50 to-brand-100 border-b border-brand-200 shadow-sm dark:from-stone-800 dark:via-stone-800 dark:to-stone-800 dark:border-stone-700 dark:shadow-none">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
@@ -18,7 +18,7 @@
                     <div class="inline-flex items-center">
                         <x-dropdown align="center" width="48">
                             <x-slot name="trigger">
-                                <button class="inline-flex items-center gap-1 px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-brand-600 hover:border-brand-300 focus:outline-none focus:text-brand-600 focus:border-brand-300 transition duration-150 ease-in-out @if(request()->routeIs('admin.customers.*') || request()->routeIs('admin.services.*') || request()->routeIs('admin.products.*')) border-brand-400 text-brand-900 @endif">
+                                <button class="inline-flex items-center gap-1 px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-brand-600 hover:border-brand-300 focus:outline-none focus:text-brand-600 focus:border-brand-300 transition duration-150 ease-in-out dark:text-stone-400 dark:hover:text-brand-400 dark:hover:border-brand-600 dark:focus:text-brand-400 dark:focus:border-brand-600 @if(request()->routeIs('admin.customers.*') || request()->routeIs('admin.services.*') || request()->routeIs('admin.products.*')) border-brand-400 text-brand-900 @endif">
                                     <span>Cadastros</span>
                                     <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -41,7 +41,7 @@
                     <div class="inline-flex items-center">
                         <x-dropdown align="center" width="48">
                             <x-slot name="trigger">
-                                <button class="inline-flex items-center gap-1 px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-brand-600 hover:border-brand-300 focus:outline-none focus:text-brand-600 focus:border-brand-300 transition duration-150 ease-in-out @if(request()->routeIs('admin.financial.*') || request()->routeIs('admin.commissions.*')) border-brand-400 text-brand-900 @endif">
+                                <button class="inline-flex items-center gap-1 px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-brand-600 hover:border-brand-300 focus:outline-none focus:text-brand-600 focus:border-brand-300 transition duration-150 ease-in-out dark:text-stone-400 dark:hover:text-brand-400 dark:hover:border-brand-600 dark:focus:text-brand-400 dark:focus:border-brand-600 @if(request()->routeIs('admin.financial.*') || request()->routeIs('admin.commissions.*')) border-brand-400 text-brand-900 @endif">
                                     <span>Financeiros</span>
                                     <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -61,7 +61,7 @@
                     <div class="inline-flex items-center">
                         <x-dropdown align="center" width="48">
                             <x-slot name="trigger">
-                                <button class="inline-flex items-center gap-1 px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-brand-600 hover:border-brand-300 focus:outline-none focus:text-brand-600 focus:border-brand-300 transition duration-150 ease-in-out @if(request()->routeIs('admin.anamnesis.*') || request()->routeIs('admin.settings.*')) border-brand-400 text-brand-900 @endif">
+                                <button class="inline-flex items-center gap-1 px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-brand-600 hover:border-brand-300 focus:outline-none focus:text-brand-600 focus:border-brand-300 transition duration-150 ease-in-out dark:text-stone-400 dark:hover:text-brand-400 dark:hover:border-brand-600 dark:focus:text-brand-400 dark:focus:border-brand-600 @if(request()->routeIs('admin.anamnesis.*') || request()->routeIs('admin.settings.*')) border-brand-400 text-brand-900 @endif">
                                     <span>Fichas</span>
                                     <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -92,7 +92,7 @@
                 </button>
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="flex items-center text-sm font-medium text-brand-600 hover:text-brand-800 hover:border-brand-300 focus:outline-none focus:text-brand-800 focus:border-brand-300 transition duration-150 ease-in-out">
+                        <button class="flex items-center text-sm font-medium text-brand-600 hover:text-brand-800 hover:border-brand-300 focus:outline-none focus:text-brand-800 focus:border-brand-300 transition duration-150 ease-in-out dark:text-brand-400 dark:hover:text-brand-300">
                             <div>{{ Auth::user()->name }}</div>
                             <div class="ml-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -129,7 +129,7 @@
             </div>
 
             <div class="-mr-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
+                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out dark:text-stone-400 dark:hover:text-stone-300 dark:hover:bg-stone-700 dark:focus:bg-stone-700">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -148,7 +148,7 @@
                 Agenda
             </x-responsive-nav-link>
             <div class="pt-2 pb-1">
-                <div class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Cadastros</div>
+                <div class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider dark:text-stone-500">Cadastros</div>
                 <x-responsive-nav-link :href="route('admin.customers.index')" :active="request()->routeIs('admin.customers.*')">
                     Clientes
                 </x-responsive-nav-link>
@@ -160,7 +160,7 @@
                 </x-responsive-nav-link>
             </div>
             <div class="pt-2 pb-1">
-                <div class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Financeiros</div>
+                <div class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider dark:text-stone-500">Financeiros</div>
                 <x-responsive-nav-link :href="route('admin.financial.index')" :active="request()->routeIs('admin.financial.*')">
                     Financeiro
                 </x-responsive-nav-link>
@@ -169,7 +169,7 @@
                 </x-responsive-nav-link>
             </div>
             <div class="pt-2 pb-1">
-                <div class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Fichas</div>
+                <div class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider dark:text-stone-500">Fichas</div>
                 <x-responsive-nav-link :href="route('admin.anamnesis.index')" :active="request()->routeIs('admin.anamnesis.*')">
                     Anamnese
                 </x-responsive-nav-link>
