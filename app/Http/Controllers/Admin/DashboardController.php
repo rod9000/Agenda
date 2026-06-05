@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\Commission;
 use App\Models\Customer;
 use App\Models\Service;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,74 +25,136 @@ class DashboardController extends Controller
             default    => [Carbon::today(), Carbon::today()->endOfDay()],
         };
 
-        $completedQuery = Appointment::where('status', 'completed')
-            ->whereBetween('start', $dateRange);
+        $periodStart = $dateRange[0];
+        $periodEnd = $dateRange[1];
 
-        $revenue = $completedQuery->clone()
+        $isAdmin = auth()->user()->isAdmin();
+
+        // --- Queries base ---
+        $baseAppointments = Appointment::whereBetween('start', [$periodStart, $periodEnd]);
+
+        $completed = (clone $baseAppointments)->where('status', 'completed');
+        $cancelled = (clone $baseAppointments)->whereIn('status', ['cancelled', 'no_show']);
+        $pending = (clone $baseAppointments)->whereIn('status', ['scheduled', 'confirmed']);
+
+        // --- Revenue (via pivot) ---
+        $revenue = (float) (clone $completed)
             ->join('appointment_service', 'appointments.id', '=', 'appointment_service.appointment_id')
             ->sum('appointment_service.price');
 
-        $completedCount = $completedQuery->clone()->count();
+        $completedCount = (clone $completed)->count();
+        $pendingCount = (clone $pending)->count();
+        $cancelledCount = (clone $cancelled)->count();
 
-        $pendingCount = Appointment::whereIn('status', ['scheduled', 'confirmed'])->count();
+        $uniqueCustomers = (clone $completed)->distinct('customer_id')->count('customer_id');
 
+        $avgTicket = $completedCount > 0 ? $revenue / $completedCount : 0;
+
+        // --- Receita Dia/Semana/Mês (corrigido: usa appointment_service) ---
+        $todayRange = [Carbon::today(), Carbon::today()->endOfDay()];
+        $weekRange  = [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()];
+        $monthRange = [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()];
+
+        $revenueDay = $this->revenueInRange($todayRange);
+        $revenueWeek = $this->revenueInRange($weekRange);
+        $revenueMonth = $this->revenueInRange($monthRange);
+
+        $countDay = Appointment::where('status', 'completed')
+            ->whereBetween('start', $todayRange)->count();
+        $countWeek = Appointment::where('status', 'completed')
+            ->whereBetween('start', $weekRange)->count();
+        $countMonth = Appointment::where('status', 'completed')
+            ->whereBetween('start', $monthRange)->count();
+
+        // --- Gráfico de barras (7 dias) ---
+        $chartData = $this->weeklyChartData();
+
+        // --- Top 5 serviços do período ---
+        $topServices = (clone $completed)
+            ->join('appointment_service', 'appointments.id', '=', 'appointment_service.appointment_id')
+            ->join('services', 'appointment_service.service_id', '=', 'services.id')
+            ->select('services.id', 'services.name', 'services.color_hex',
+                DB::raw('COUNT(*) as total'),
+                DB::raw('SUM(appointment_service.price) as total_revenue'))
+            ->groupBy('services.id', 'services.name', 'services.color_hex')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get();
+
+        // --- Atendimentos de hoje ---
         $todayAppointments = Appointment::with(['customer', 'services', 'user'])
             ->whereDate('start', Carbon::today())
             ->orderBy('start')
             ->get();
 
-        $birthdayCount = Customer::whereMonth('birth_date', Carbon::now()->month)
+        // --- Próximos 5 agendamentos ---
+        $upcomingAppointments = Appointment::with(['customer', 'services', 'user'])
+            ->where('start', '>=', Carbon::now())
+            ->whereNotIn('status', ['completed', 'cancelled', 'no_show'])
+            ->orderBy('start')
+            ->limit(5)
+            ->get();
+
+        // --- Aniversariantes ---
+        $todayBirthdays = Customer::whereMonth('birth_date', Carbon::now()->month)
             ->whereDay('birth_date', Carbon::now()->day)
-            ->count();
+            ->get();
 
-        $services = Service::where('active', true)->get();
+        $monthBirthdays = Customer::whereMonth('birth_date', Carbon::now()->month)
+            ->orderBy('birth_date')
+            ->get();
 
-        $chartData = [];
+        // --- Comissões pendentes ---
+        $pendingCommissions = Commission::where('paid', false)->sum('value');
+
+        // --- Performance por profissional (admin) ---
+        $profPerformance = collect();
+        if ($isAdmin) {
+            $profPerformance = User::where('active', true)
+                ->withCount(['appointments' => function ($q) use ($periodStart, $periodEnd) {
+                    $q->where('status', 'completed')
+                      ->whereBetween('start', [$periodStart, $periodEnd]);
+                }])
+                ->get()
+                ->filter(fn($u) => $u->appointments_count > 0)
+                ->values();
+        }
+
+        return view('admin.dashboard', compact(
+            'revenue', 'completedCount', 'pendingCount', 'cancelledCount',
+            'uniqueCustomers', 'avgTicket',
+            'todayAppointments', 'upcomingAppointments',
+            'todayBirthdays', 'monthBirthdays',
+            'period', 'chartData',
+            'revenueDay', 'revenueWeek', 'revenueMonth',
+            'countDay', 'countWeek', 'countMonth',
+            'topServices', 'pendingCommissions',
+            'profPerformance', 'isAdmin'
+        ));
+    }
+
+    private function revenueInRange(array $range): float
+    {
+        return (float) Appointment::where('status', 'completed')
+            ->whereBetween('start', $range)
+            ->join('appointment_service', 'appointments.id', '=', 'appointment_service.appointment_id')
+            ->sum('appointment_service.price');
+    }
+
+    private function weeklyChartData(): array
+    {
+        $data = [];
         for ($i = 0; $i < 7; $i++) {
             $day = Carbon::now()->startOfWeek()->addDays($i);
-            $dayTotal = Appointment::where('status', 'completed')
+            $total = Appointment::where('status', 'completed')
                 ->whereDate('start', $day)
                 ->join('appointment_service', 'appointments.id', '=', 'appointment_service.appointment_id')
                 ->sum('appointment_service.price');
-            $chartData[] = [
+            $data[] = [
                 'label' => $day->locale('pt-BR')->isoFormat('ddd'),
-                'value' => (float) $dayTotal,
+                'value' => (float) $total,
             ];
         }
-
-        $revenueDay = Appointment::where('status', 'completed')
-            ->whereDate('start', Carbon::today())
-            ->join('services', 'appointments.service_id', '=', 'services.id')
-            ->sum('services.price');
-
-        $revenueWeek = Appointment::where('status', 'completed')
-            ->whereBetween('start', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-            ->join('services', 'appointments.service_id', '=', 'services.id')
-            ->sum('services.price');
-
-        $revenueMonth = Appointment::where('status', 'completed')
-            ->whereBetween('start', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
-            ->join('services', 'appointments.service_id', '=', 'services.id')
-            ->sum('services.price');
-
-        $countDay = Appointment::where('status', 'completed')
-            ->whereDate('start', Carbon::today())
-            ->count();
-
-        $countWeek = Appointment::where('status', 'completed')
-            ->whereBetween('start', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-            ->count();
-
-        $countMonth = Appointment::where('status', 'completed')
-            ->whereBetween('start', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
-            ->count();
-
-        return view('admin.dashboard', compact(
-            'revenue', 'completedCount', 'pendingCount',
-            'todayAppointments', 'birthdayCount',
-            'period', 'services', 'chartData',
-            'revenueDay', 'revenueWeek', 'revenueMonth',
-            'countDay', 'countWeek', 'countMonth'
-        ));
+        return $data;
     }
 }
