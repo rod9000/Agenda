@@ -10,6 +10,52 @@
 <div class="py-6">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
+        {{-- Filter Bar --}}
+        <form method="GET" class="flex flex-wrap items-end gap-3 pb-4 border-b border-brand-100">
+            <div>
+                <label class="label text-xs">Período</label>
+                <select name="period" onchange="toggleCustomRange(this)" class="input-pastel text-sm">
+                    <option value="year" @selected($period == 'year')>Últimos 12 meses</option>
+                    <option value="quarter" @selected($period == 'quarter')>Últimos 3 meses</option>
+                    <option value="month" @selected($period == 'month')>Este mês</option>
+                    <option value="last_month" @selected($period == 'last_month')>Mês passado</option>
+                    <option value="all" @selected($period == 'all')>Todo período</option>
+                    <option value="custom" @selected($period == 'custom')>Personalizado</option>
+                </select>
+            </div>
+            <div id="custom-range" class="{{ $period == 'custom' ? '' : 'hidden' }} flex gap-2">
+                <div>
+                    <label class="label text-xs">De</label>
+                    <input type="date" name="start" value="{{ $startInput ?? '' }}" class="input-pastel text-sm">
+                </div>
+                <div>
+                    <label class="label text-xs">Até</label>
+                    <input type="date" name="end" value="{{ $endInput ?? '' }}" class="input-pastel text-sm">
+                </div>
+            </div>
+            <div>
+                <label class="label text-xs">Profissional</label>
+                <select name="user_id" class="input-pastel text-sm">
+                    <option value="">Todos</option>
+                    @foreach($users as $user)
+                        <option value="{{ $user->id }}" @selected($userId == $user->id)>{{ $user->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="label text-xs">Status</label>
+                <select name="status" class="input-pastel text-sm">
+                    <option value="completed" @selected($statusFilter == 'completed')>Concluído</option>
+                    <option value="scheduled" @selected($statusFilter == 'scheduled')>Agendado</option>
+                    <option value="confirmed" @selected($statusFilter == 'confirmed')>Confirmado</option>
+                    <option value="cancelled" @selected($statusFilter == 'cancelled')>Cancelado</option>
+                    <option value="no_show" @selected($statusFilter == 'no_show')>Não Compareceu</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-pastel-primary text-sm">Filtrar</button>
+            <a href="{{ route('admin.reports.index') }}" class="btn-pastel-secondary text-sm">Limpar</a>
+        </form>
+
         {{-- Stats Cards --}}
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="card-pastel">
@@ -137,6 +183,10 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+function toggleCustomRange(sel) {
+    var el = document.getElementById('custom-range');
+    if (sel) el.classList.toggle('hidden', sel.value !== 'custom');
+}
 document.addEventListener('DOMContentLoaded', function() {
     var brandColor = '#c94f2e';
     var brandLight = '#f5ccb9';
