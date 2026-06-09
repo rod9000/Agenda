@@ -51,6 +51,56 @@
             </div>
         </div>
 
+        {{-- Indicadores --}}
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <div class="card-pastel">
+                <div class="text-xs font-medium text-brand-600 uppercase tracking-wider">Vs. Período Anterior</div>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-2xl font-bold {{ $revenueChange >= 0 ? 'text-emerald-600' : 'text-red-600' }}">
+                        {{ $revenueChange >= 0 ? '+' : '' }}{{ $revenueChange }}%
+                    </span>
+                    <span class="text-xs text-brand-400">receita</span>
+                    @if($revenueChange >= 0)
+                        <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                    @else
+                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                    @endif
+                </div>
+                <div class="flex items-center gap-1 mt-1">
+                    <span class="text-sm font-medium {{ $completedChange >= 0 ? 'text-emerald-500' : 'text-red-500' }}">
+                        {{ $completedChange >= 0 ? '+' : '' }}{{ $completedChange }}%
+                    </span>
+                    <span class="text-xs text-brand-400">atendimentos</span>
+                </div>
+            </div>
+
+            <div class="card-pastel">
+                <div class="text-xs font-medium uppercase tracking-wider {{ $cancellationRate > 20 ? 'text-red-600' : 'text-brand-600' }}">Cancelamento</div>
+                <div class="mt-2 text-2xl font-bold {{ $cancellationRate > 20 ? 'text-red-600' : 'text-amber-600' }}">
+                    {{ $cancellationRate }}%
+                </div>
+                <div class="text-xs text-brand-400 mt-1">
+                    {{ $cancelledCount }} cancel. de {{ $totalFinished }} {{ $totalFinished == 1 ? 'agendamento' : 'agendamentos' }}
+                </div>
+            </div>
+
+            <div class="card-pastel">
+                <div class="text-xs font-medium uppercase tracking-wider {{ $conversionRate < 50 ? 'text-red-600' : 'text-emerald-600' }}">Conversão</div>
+                <div class="mt-2 text-2xl font-bold {{ $conversionRate >= 70 ? 'text-emerald-600' : 'text-amber-600' }}">
+                    {{ $conversionRate }}%
+                </div>
+                <div class="text-xs text-brand-400 mt-1">
+                    {{ $completedCount }} concl. de {{ $totalInPeriod }} {{ $totalInPeriod == 1 ? 'total' : 'totais' }}
+                </div>
+            </div>
+
+            <div class="card-pastel">
+                <div class="text-xs font-medium text-brand-600 uppercase tracking-wider">Dia + Movimentado</div>
+                <div class="mt-2 text-xl font-bold text-brand-800">{{ $busiestDayName }}</div>
+                <div class="text-xs text-brand-400 mt-1">{{ $busiestDayCount }} {{ $busiestDayCount == 1 ? 'atendimento' : 'atendimentos' }}</div>
+            </div>
+        </div>
+
         {{-- Receita Dia / Semana / Mês --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
             <div class="card-pastel text-center">
@@ -229,6 +279,47 @@
                     </div>
                     @endforeach
                 </div>
+            </div>
+        </div>
+        @endif
+
+        {{-- Receita por Profissional (admin) --}}
+        @if($isAdmin && $profRevenue->count() > 0)
+        <div class="card-pastel mb-6">
+            <h3 class="text-lg font-semibold text-brand-800 mb-4">Receita por Profissional</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-brand-400 text-xs uppercase tracking-wider">
+                            <th class="pb-2 font-semibold">Profissional</th>
+                            <th class="pb-2 font-semibold">Atend.</th>
+                            <th class="pb-2 font-semibold">Receita</th>
+                            <th class="pb-2 font-semibold">Ticket Médio</th>
+                            <th class="pb-2 font-semibold">%</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-brand-100">
+                        @foreach($profRevenue as $pr)
+                        <tr>
+                            <td class="py-2 text-stone-700 font-medium">{{ $pr->name }}</td>
+                            <td class="py-2 text-stone-700">{{ $pr->total_appointments }}</td>
+                            <td class="py-2 text-emerald-600 font-medium">R$ {{ number_format($pr->total_revenue, 2, ',', '.') }}</td>
+                            <td class="py-2 text-stone-700">
+                                R$ {{ number_format($pr->total_appointments > 0 ? $pr->total_revenue / $pr->total_appointments : 0, 2, ',', '.') }}
+                            </td>
+                            <td class="py-2">
+                                @php $pct = $revenue > 0 ? ($pr->total_revenue / $revenue) * 100 : 0; @endphp
+                                <div class="flex items-center gap-2">
+                                    <div class="w-20 bg-brand-100 rounded-full h-2">
+                                        <div class="bg-brand-500 h-2 rounded-full" style="width: {{ min($pct, 100) }}%"></div>
+                                    </div>
+                                    <span class="text-xs text-brand-500">{{ round($pct) }}%</span>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
         @endif

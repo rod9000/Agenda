@@ -31,11 +31,12 @@ class SendReminders extends Command
         $wa = new WhatsAppService();
 
         foreach ($appointments as $app) {
-            $msg = "Olá {$app->customer->name}, lembrete do seu horário hoje!\n"
+            $msg = "🔔 Lembrete: {$app->customer->name}, seu horário é às "
+                 . $app->start->format('H:i') . "h!\n"
                  . "Serviço: {$app->service->name}\n"
-                 . "Horário: {$app->start->format('H:i')}\n"
                  . "Duração: {$app->service->duration_min} min\n"
-                 . "Valor: R$ " . number_format($app->service->price, 2, ',', '.');
+                 . "Valor: R$ " . number_format($app->service->price, 2, ',', '.') . "\n"
+                 . "Local: Clínica de Estética";
 
             $success = $wa->send($app->customer->phone, $msg);
 
@@ -52,7 +53,7 @@ class SendReminders extends Command
             $count++;
         }
 
-        $this->info("Sent {$count} reminders.");
+        $this->info("Lembretes enviados: {$count}");
 
         return 0;
     }

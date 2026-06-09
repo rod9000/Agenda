@@ -107,6 +107,45 @@ class DashboardController extends Controller
         // --- Comissões pendentes ---
         $pendingCommissions = Commission::where('paid', false)->sum('value');
 
+        // --- Comparativo com período anterior ---
+        $periodLength = $periodStart->diffInDays($periodEnd) + 1;
+        $prevPeriodStart = $periodStart->copy()->subDays($periodLength);
+        $prevPeriodEnd = $periodStart->copy()->subDay();
+
+        $prevRevenue = (float) Appointment::where('status', 'completed')
+            ->whereBetween('start', [$prevPeriodStart, $prevPeriodEnd])
+            ->join('appointment_service', 'appointments.id', '=', 'appointment_service.appointment_id')
+            ->sum('appointment_service.price');
+
+        $prevCompletedCount = Appointment::where('status', 'completed')
+            ->whereBetween('start', [$prevPeriodStart, $prevPeriodEnd])
+            ->count();
+
+        $revenueChange = $prevRevenue > 0
+            ? round(($revenue - $prevRevenue) / $prevRevenue * 100, 1)
+            : ($revenue > 0 ? 100 : 0);
+
+        $completedChange = $prevCompletedCount > 0
+            ? round(($completedCount - $prevCompletedCount) / $prevCompletedCount * 100, 1)
+            : ($completedCount > 0 ? 100 : 0);
+
+        // --- Taxa de cancelamento ---
+        $totalFinished = $completedCount + $cancelledCount;
+        $cancellationRate = $totalFinished > 0 ? round($cancelledCount / $totalFinished * 100, 1) : 0;
+
+        // --- Taxa de conversão ---
+        $totalInPeriod = (clone $baseAppointments)->count();
+        $conversionRate = $totalInPeriod > 0 ? round($completedCount / $totalInPeriod * 100, 1) : 0;
+
+        // --- Dia da semana mais movimentado ---
+        $dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+        $dayCounts = (clone $completed)
+            ->get()
+            ->countBy(fn($app) => $app->start->dayOfWeek);
+        $busiestDayIndex = $dayCounts->sortDesc()->keys()->first();
+        $busiestDayName = $busiestDayIndex !== null ? $dayNames[$busiestDayIndex] : '—';
+        $busiestDayCount = $dayCounts->get($busiestDayIndex, 0);
+
         // --- Performance por profissional (admin) ---
         $profPerformance = collect();
         if ($isAdmin) {
@@ -120,6 +159,20 @@ class DashboardController extends Controller
                 ->values();
         }
 
+        // --- Receita por profissional (admin) ---
+        $profRevenue = collect();
+        if ($isAdmin) {
+            $profRevenue = (clone $completed)
+                ->join('appointment_service', 'appointments.id', '=', 'appointment_service.appointment_id')
+                ->join('users', 'appointments.user_id', '=', 'users.id')
+                ->select('users.id', 'users.name',
+                    DB::raw('COUNT(DISTINCT appointments.id) as total_appointments'),
+                    DB::raw('SUM(appointment_service.price) as total_revenue'))
+                ->groupBy('users.id', 'users.name')
+                ->orderByDesc('total_revenue')
+                ->get();
+        }
+
         return view('admin.dashboard', compact(
             'revenue', 'completedCount', 'pendingCount', 'cancelledCount',
             'uniqueCustomers', 'avgTicket',
@@ -129,7 +182,11 @@ class DashboardController extends Controller
             'revenueDay', 'revenueWeek', 'revenueMonth',
             'countDay', 'countWeek', 'countMonth',
             'topServices', 'pendingCommissions',
-            'profPerformance', 'isAdmin'
+            'profPerformance', 'isAdmin',
+            'revenueChange', 'completedChange',
+            'cancellationRate', 'conversionRate', 'totalInPeriod', 'totalFinished',
+            'busiestDayName', 'busiestDayCount',
+            'profRevenue'
         ));
     }
 

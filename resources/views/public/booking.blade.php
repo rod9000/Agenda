@@ -234,7 +234,7 @@
                             <div class="flex gap-2 mb-4 flex-wrap" id="quickDates"></div>
 
                             <div class="mb-4">
-                                <input type="date" name="date" id="dateSelect" required min="{{ now()->format('Y-m-d') }}" max="{{ now()->addDays(60)->format('Y-m-d') }}" class="w-full rounded-xl border-2 border-stone-200 bg-white/80 shadow-sm focus:border-brand-400 focus:ring focus:ring-brand-200/30 p-3 text-sm">
+                                <input type="text" name="date" id="dateSelect" required placeholder="dd/mm/aaaa" inputmode="numeric" autocomplete="off" class="w-full rounded-xl border-2 border-stone-200 bg-white/80 shadow-sm focus:border-brand-400 focus:ring focus:ring-brand-200/30 p-3 text-sm">
                             </div>
 
                             <div id="timeSlotsContainer">
@@ -488,7 +488,8 @@
     function loadSlots() {
         var userId = document.getElementById('user_id').value;
         var serviceId = selectedServices.length > 0 ? selectedServices[0] : '';
-        var date = document.getElementById('dateSelect').value;
+        var dateInput = document.getElementById('dateSelect');
+        var date = dateInput.dataset.iso || dateInput.value;
 
         if (!userId || !serviceId || !date) return;
 
@@ -580,7 +581,8 @@
             var chip = document.createElement('button');
             chip.type = 'button';
             chip.className = 'px-3 py-1.5 rounded-lg text-xs font-medium border-2 border-stone-200 text-stone-600 hover:border-brand-300 hover:text-brand-600 hover:bg-brand-50 transition-all';
-            chip.dataset.date = dateStr;
+            chip.dataset.date = day + '/' + m + '/' + y;
+            chip.dataset.iso = dateStr;
             chip.textContent = label + ' ' + day + '/' + m;
             chip.onclick = function() {
                 document.querySelectorAll('#quickDates button').forEach(function(b) {
@@ -593,8 +595,17 @@
             quickDates.appendChild(chip);
         }
 
+        function parseDateBr(str) {
+            var parts = (str || '').split('/');
+            if (parts.length === 3) return parts[2] + '-' + parts[1] + '-' + parts[0];
+            return str;
+        }
+
         dateInput.addEventListener('change', function() {
-            selectedDate = this.value;
+            if (this.value.length !== 10) return;
+            var iso = parseDateBr(this.value);
+            this.dataset.iso = iso;
+            selectedDate = iso;
             document.querySelectorAll('#quickDates button').forEach(function(b) {
                 if (b.dataset.date === this.value) {
                     b.className = 'px-3 py-1.5 rounded-lg text-xs font-medium border-2 border-brand-400 text-brand-700 bg-brand-50 transition-all';
@@ -604,6 +615,29 @@
             }.bind(this));
             updateResumo();
             loadSlots();
+        });
+
+        // Date mask dd/mm/aaaa
+        dateInput.addEventListener('input', function() {
+            var v = this.value.replace(/\D/g, '');
+            if (v.length <= 2) this.value = v;
+            else if (v.length <= 4) this.value = v.slice(0,2) + '/' + v.slice(2);
+            else this.value = v.slice(0,2) + '/' + v.slice(2,4) + '/' + v.slice(4,8);
+            if (v.length === 8) {
+                var iso = v.slice(4,8) + '-' + v.slice(2,4) + '-' + v.slice(0,2);
+                this.dataset.iso = iso;
+                selectedDate = iso;
+                updateResumo();
+                loadSlots();
+            } else {
+                this.dataset.iso = '';
+            }
+        });
+
+        // Convert to ISO before submit
+        document.getElementById('bookingForm').addEventListener('submit', function() {
+            var inp = document.getElementById('dateSelect');
+            if (inp.dataset.iso) inp.value = inp.dataset.iso;
         });
 
         // CPF mask on Step 1
