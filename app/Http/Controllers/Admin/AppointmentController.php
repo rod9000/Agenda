@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Commission;
 use App\Models\Customer;
@@ -100,19 +101,9 @@ class AppointmentController extends Controller
         return response()->json($appointments);
     }
 
-    public function store(Request $request)
+    public function store(StoreAppointmentRequest $request)
     {
-        $data = $request->validate([
-            'customer_id'        => 'required|exists:customers,id',
-            'user_id'            => 'required|exists:users,id',
-            'service_ids'        => 'required|array|min:1',
-            'service_ids.*'      => 'exists:services,id',
-            'start'              => 'required|date',
-            'end'                => 'nullable|date|after:start',
-            'notes'              => 'nullable|string',
-            'recurring_frequency' => 'nullable|string|in:daily,weekly,biweekly,monthly',
-            'recurring_until'    => 'nullable|date|after:start',
-        ]);
+        $data = $request->validated();
 
         if (!auth()->user()->isAdmin()) {
             $data['user_id'] = auth()->id();
@@ -298,7 +289,18 @@ class AppointmentController extends Controller
             }
         }
 
-        return response()->json(['success' => true, 'appointment' => $appointment->fresh()->load(['customer', 'services', 'user', 'payment'])]);
+        $response = [
+            'success' => true,
+            'appointment' => $appointment->fresh()->load(['customer', 'services', 'user', 'payment']),
+        ];
+
+        if ($wasCompleted) {
+            $customer = $appointment->customer;
+            $response['points_earned'] = (int) floor($totalPrice);
+            $response['total_points'] = $customer->points;
+        }
+
+        return response()->json($response);
     }
 
     public function destroy(Request $request, Appointment $appointment)
@@ -333,11 +335,13 @@ class AppointmentController extends Controller
             $serviceList = $appointment->services->map(fn($s) => $s->name . ' (' . $s->pivot->duration_min . 'min)')->implode("\n");
             $totalPrice = $appointment->services->sum('pivot.price');
             $confirmLink = url('/confirmar/' . $appointment->confirmation_token);
+            $rescheduleLink = url('/reagendar/' . $appointment->confirmation_token);
             $msg = "Olá {$appointment->customer->name}, seu agendamento foi confirmado!\n"
                  . "Serviços:\n{$serviceList}\n"
                  . "Data: {$appointment->start->format('d/m/Y H:i')}\n"
                  . "Valor: R$ " . number_format($totalPrice, 2, ',', '.')
-                 . "\n\nConfirme sua presença clicando no link abaixo:\n{$confirmLink}";
+                 . "\n\n✅ Confirme sua presença:\n{$confirmLink}"
+                 . "\n\n🔄 Precisa remarcar?\n{$rescheduleLink}";
 
             $wa->send($appointment->customer->phone, $msg);
         } catch (\Exception $e) {

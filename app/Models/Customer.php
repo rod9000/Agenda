@@ -18,11 +18,15 @@ class Customer extends Model
         'email',
         'photo',
         'notes',
+        'points',
+        'total_visits',
         'created_by',
     ];
 
     protected $casts = [
         'birth_date' => 'date',
+        'points' => 'integer',
+        'total_visits' => 'integer',
     ];
 
     public function appointments()
@@ -43,5 +47,24 @@ class Customer extends Model
     public function latestAnamnesis()
     {
         return $this->hasOne(AnamnesisForm::class)->latestOfMany();
+    }
+
+    public function redemptions()
+    {
+        return $this->hasMany(LoyaltyRedemption::class);
+    }
+
+    public function addPoints(int $points): void
+    {
+        $this->increment('points', $points);
+    }
+
+    public function spendPoints(int $points): bool
+    {
+        if ($this->points < $points) {
+            return false;
+        }
+        $this->decrement('points', $points);
+        return true;
     }
 }

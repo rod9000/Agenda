@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-gradient-to-r from-brand-100 via-yellow-50 to-brand-100 border-b border-brand-200 shadow-sm dark:from-stone-800 dark:via-stone-800 dark:to-stone-800 dark:border-stone-700 dark:shadow-none">
+<nav x-data="{ open: false }" class="no-print bg-gradient-to-r from-brand-100 via-yellow-50 to-brand-100 border-b border-brand-200 shadow-sm dark:from-stone-800 dark:via-stone-800 dark:to-stone-800 dark:border-stone-700 dark:shadow-none">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
@@ -35,8 +35,14 @@
                                 <x-dropdown-link :href="route('admin.services.index')" :active="request()->routeIs('admin.services.*')">
                                     Procedimentos
                                 </x-dropdown-link>
-                                <x-dropdown-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
+                                <x-dropdown-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*') && !request()->routeIs('admin.products.stock-report')">
                                     Produtos
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('admin.products.movements')" :active="request()->routeIs('admin.products.movements')">
+                                    Movimentações
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('admin.products.stock-report')" :active="request()->routeIs('admin.products.stock-report')">
+                                    Relatório de Estoque
                                 </x-dropdown-link>
                             </x-slot>
                         </x-dropdown>
@@ -83,6 +89,10 @@
                             </x-slot>
                         </x-dropdown>
                     </div>
+                    <x-nav-link :href="route('admin.loyalty.index')" :active="request()->routeIs('admin.loyalty.*')">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                        Fidelidade
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -160,8 +170,14 @@
                 <x-responsive-nav-link :href="route('admin.services.index')" :active="request()->routeIs('admin.services.*')">
                     Procedimentos
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
+                <x-responsive-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*') && !request()->routeIs('admin.products.stock-report')">
                     Produtos
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.products.movements')" :active="request()->routeIs('admin.products.movements')">
+                    Movimentações
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.products.stock-report')" :active="request()->routeIs('admin.products.stock-report')">
+                    Relatório de Estoque
                 </x-responsive-nav-link>
             </div>
             <div class="pt-2 pb-1">
@@ -182,6 +198,9 @@
                     Horários
                 </x-responsive-nav-link>
             </div>
+            <x-responsive-nav-link :href="route('admin.loyalty.index')" :active="request()->routeIs('admin.loyalty.*')">
+                Fidelidade
+            </x-responsive-nav-link>
         </div>
 
             <div class="pt-4 pb-1 border-t border-gray-200 dark:border-stone-700">

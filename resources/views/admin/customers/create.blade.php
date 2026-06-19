@@ -80,7 +80,7 @@
 </div>
 
 <div id="webcamModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl p-5 max-w-md w-full shadow-2xl">
+    <div class="bg-white dark:bg-stone-800 rounded-2xl p-5 max-w-md w-full shadow-2xl">
         <div class="relative bg-black rounded-xl overflow-hidden mb-4">
             <video id="webcam" autoplay playsinline class="w-full aspect-[4/3] object-cover"></video>
             <canvas id="webcamCanvas" class="hidden"></canvas>

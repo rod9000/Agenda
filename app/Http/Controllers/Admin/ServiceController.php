@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreServiceRequest;
 use App\Models\Product;
 use App\Models\Service;
 use Illuminate\Http\Request;
@@ -21,22 +22,9 @@ class ServiceController extends Controller
         return view('admin.services.create', compact('products'));
     }
 
-    public function store(Request $request)
+    public function store(StoreServiceRequest $request)
     {
-        $data = $request->validate([
-            'name'         => 'required|string|max:100|unique:services,name',
-            'duration_min' => 'required|integer|min:15',
-            'price'        => 'required|numeric|min:0',
-            'estimated_product_cost' => 'nullable|numeric|min:0',
-            'commission_type' => 'nullable|string|in:percentage,fixed',
-            'commission_value' => 'nullable|numeric|min:0',
-            'color_hex'    => 'nullable|string|max:7',
-            'description'  => 'nullable|string',
-            'products'     => 'nullable|array',
-            'products.*.product_id' => 'required_with:products|exists:products,id',
-            'products.*.quantity' => 'required_with:products|integer|min:1',
-            'products.*.is_per_session' => 'boolean',
-        ]);
+        $data = $request->validated();
 
         $data['active'] = $request->boolean('active', true);
 

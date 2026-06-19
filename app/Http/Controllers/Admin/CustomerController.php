@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreCustomerRequest;
 use App\Models\Appointment;
 use App\Models\Customer;
 use Illuminate\Http\Request;
@@ -59,18 +60,9 @@ class CustomerController extends Controller
         return view('admin.customers.create');
     }
 
-    public function store(Request $request)
+    public function store(StoreCustomerRequest $request)
     {
-        $data = $request->validate([
-            'name'       => 'required|string|max:100',
-            'cpf'        => 'required|string|max:14|unique:customers,cpf',
-            'phone'      => 'required|string|max:20',
-            'birth_date' => 'required|date',
-            'email'      => 'nullable|email|max:100',
-            'photo'      => 'nullable|string',
-            'notes'      => 'nullable|string',
-        ]);
-
+        $data = $request->validated();
         $data['created_by'] = auth()->id();
 
         Customer::create($data);
@@ -84,17 +76,9 @@ class CustomerController extends Controller
         return view('admin.customers.edit', compact('customer'));
     }
 
-    public function update(Request $request, Customer $customer)
+    public function update(StoreCustomerRequest $request, Customer $customer)
     {
-        $data = $request->validate([
-            'name'       => 'required|string|max:100',
-            'cpf'        => 'required|string|max:14|unique:customers,cpf,' . $customer->id,
-            'phone'      => 'required|string|max:20',
-            'birth_date' => 'required|date',
-            'email'      => 'nullable|email|max:100',
-            'photo'      => 'nullable|string',
-            'notes'      => 'nullable|string',
-        ]);
+        $data = $request->validated();
 
         $customer->update($data);
 

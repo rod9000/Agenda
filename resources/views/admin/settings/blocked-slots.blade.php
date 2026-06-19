@@ -42,8 +42,8 @@
         </div>
 
         <div class="card-pastel p-0 overflow-hidden">
-            <div class="p-4 border-b border-brand-100 bg-brand-50/30">
-                <h3 class="font-semibold text-brand-700">Bloqueios Futuros</h3>
+            <div class="p-4 border-b border-brand-100 dark:border-stone-700 bg-brand-50/30 dark:bg-stone-800">
+                <h3 class="font-semibold text-brand-700 dark:text-brand-300">Bloqueios Futuros</h3>
             </div>
             <table class="table-pastel">
                 <thead>
@@ -68,7 +68,10 @@
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="4" class="px-4 py-8 text-center text-brand-400">Nenhum bloqueio cadastrado.</td></tr>
+                    <tr><td colspan="4" class="px-4 py-8 text-center">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-brand-300 dark:text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                        <p class="text-brand-400 dark:text-brand-500 text-sm">Nenhum bloqueio cadastrado.</p>
+                    </td></tr>
                     @endforelse
                 </tbody>
             </table>

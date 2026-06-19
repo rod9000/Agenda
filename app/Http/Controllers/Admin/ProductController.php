@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreProductRequest;
 use App\Models\Product;
 use App\Models\StockMovement;
 use Illuminate\Http\Request;
@@ -20,19 +21,9 @@ class ProductController extends Controller
         return view('admin.products.create');
     }
 
-    public function store(Request $request)
+    public function store(StoreProductRequest $request)
     {
-        $data = $request->validate([
-            'name'           => 'required|string|max:150',
-            'brand'          => 'nullable|string|max:100',
-            'expiry_date'    => 'nullable|date',
-            'purchase_price' => 'required|numeric|min:0',
-            'quantity'       => 'nullable|integer|min:0',
-            'min_stock'      => 'nullable|integer|min:0',
-            'supplier'       => 'nullable|string|max:100',
-            'sale_price'     => 'nullable|numeric|min:0',
-        ]);
-
+        $data = $request->validated();
         $data['quantity'] = $data['quantity'] ?? 0;
 
         Product::create($data);
@@ -53,18 +44,9 @@ class ProductController extends Controller
         return view('admin.products.edit', compact('product'));
     }
 
-    public function update(Request $request, Product $product)
+    public function update(StoreProductRequest $request, Product $product)
     {
-        $data = $request->validate([
-            'name'           => 'required|string|max:150',
-            'brand'          => 'nullable|string|max:100',
-            'expiry_date'    => 'nullable|date',
-            'purchase_price' => 'required|numeric|min:0',
-            'quantity'       => 'nullable|integer|min:0',
-            'min_stock'      => 'nullable|integer|min:0',
-            'supplier'       => 'nullable|string|max:100',
-            'sale_price'     => 'nullable|numeric|min:0',
-        ]);
+        $data = $request->validated();
 
         $product->update($data);
 
@@ -78,6 +60,70 @@ class ProductController extends Controller
         $product->delete();
         return redirect()->route('admin.products.index')
             ->with('success', 'Produto excluído com sucesso!');
+    }
+
+    public function movements(Request $request)
+    {
+        $query = StockMovement::with(['product', 'user'])->latest();
+
+        if ($type = $request->get('type')) {
+            $query->where('type', $type);
+        }
+
+        if ($productId = $request->get('product_id')) {
+            $query->where('product_id', $productId);
+        }
+
+        if ($dateFrom = $request->get('date_from')) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+
+        if ($dateTo = $request->get('date_to')) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+
+        $movements = $query->paginate(30);
+        $products = Product::orderBy('name')->get();
+
+        return view('admin.products.movements', compact('movements', 'products'));
+    }
+
+    public function stockReport(Request $request)
+    {
+        $query = Product::query();
+
+        $filter = $request->get('filter', 'all');
+        $supplier = $request->get('supplier');
+
+        if ($filter === 'low_stock') {
+            $query->whereRaw('quantity > 0 AND quantity <= min_stock');
+        } elseif ($filter === 'out_of_stock') {
+            $query->where('quantity', '<=', 0);
+        } elseif ($filter === 'expiring') {
+            $query->whereNotNull('expiry_date')
+                  ->whereBetween('expiry_date', [now(), now()->addDays(30)]);
+        }
+
+        if ($supplier) {
+            $query->where('supplier', $supplier);
+        }
+
+        $products = $query->orderBy('name')->get();
+
+        $totalProducts = Product::count();
+        $lowStockCount = Product::whereRaw('quantity > 0 AND quantity <= min_stock')->count();
+        $outOfStockCount = Product::where('quantity', '<=', 0)->count();
+        $totalStockValue = Product::sum(\DB::raw('quantity * purchase_price'));
+        $expiringCount = Product::whereNotNull('expiry_date')
+            ->whereBetween('expiry_date', [now(), now()->addDays(30)])
+            ->count();
+
+        $suppliers = Product::whereNotNull('supplier')->distinct()->orderBy('supplier')->pluck('supplier');
+
+        return view('admin.products.stock-report', compact(
+            'products', 'totalProducts', 'lowStockCount', 'outOfStockCount',
+            'totalStockValue', 'expiringCount', 'suppliers', 'filter', 'supplier'
+        ));
     }
 
     public function movementStore(Request $request)

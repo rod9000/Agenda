@@ -1,23 +1,23 @@
 <div id="detailModal" class="hidden fixed inset-0 bg-brand-900/30 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-6 border w-full max-w-md shadow-xl rounded-2xl bg-white/95">
+    <div class="relative top-20 mx-auto p-6 border w-full max-w-md shadow-xl rounded-2xl bg-white/95 dark:bg-stone-800/95 dark:border-stone-700">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold text-brand-800">Detalhes do Agendamento</h3>
-            <button onclick="closeDetailModal()" class="text-brand-400 hover:text-brand-600 text-2xl leading-none">&times;</button>
+            <h3 class="text-lg font-semibold text-brand-800 dark:text-brand-200">Detalhes do Agendamento</h3>
+            <button onclick="closeDetailModal()" class="text-brand-400 hover:text-brand-600 dark:hover:text-brand-300 text-2xl leading-none">&times;</button>
         </div>
 
         <div id="detailView">
-            <div class="space-y-3 bg-brand-50/50 rounded-xl p-4">
-                <div class="flex justify-between"><span class="font-medium text-brand-600">Cliente:</span> <span id="detail-customer" class="text-stone-800"></span></div>
-                <div class="flex justify-between"><span class="font-medium text-brand-600">Profissional:</span> <span id="detail-user" class="text-stone-800"></span></div>
-                <div class="flex justify-between"><span class="font-medium text-brand-600">Serviço:</span> <span id="detail-service" class="text-stone-800"></span></div>
-                <div class="flex justify-between"><span class="font-medium text-brand-600">Status:</span> <span id="detail-status" class="font-semibold"></span></div>
-                <div class="flex justify-between"><span class="font-medium text-brand-600">Data/Hora:</span> <span id="detail-time" class="text-stone-800"></span></div>
-                <div class="flex justify-between"><span class="font-medium text-brand-600">Valor:</span> <span id="detail-price" class="text-emerald-700 font-semibold"></span></div>
-                <div class="flex justify-between"><span class="font-medium text-brand-600">Telefone:</span> <span id="detail-phone" class="text-stone-800"></span></div>
-                <div class="flex justify-between"><span class="font-medium text-brand-600">Pagamento:</span> <span id="detail-payment" class="text-stone-800"></span></div>
-                <div class="flex justify-between"><span class="font-medium text-brand-600">Obs:</span> <span id="detail-notes" class="text-stone-800"></span></div>
+            <div class="space-y-3 bg-brand-50/50 dark:bg-stone-700/50 rounded-xl p-4">
+                <div class="flex justify-between"><span class="font-medium text-brand-600 dark:text-brand-400">Cliente:</span> <span id="detail-customer" class="text-stone-800 dark:text-stone-200"></span></div>
+                <div class="flex justify-between"><span class="font-medium text-brand-600 dark:text-brand-400">Profissional:</span> <span id="detail-user" class="text-stone-800 dark:text-stone-200"></span></div>
+                <div class="flex justify-between"><span class="font-medium text-brand-600 dark:text-brand-400">Serviço:</span> <span id="detail-service" class="text-stone-800 dark:text-stone-200"></span></div>
+                <div class="flex justify-between"><span class="font-medium text-brand-600 dark:text-brand-400">Status:</span> <span id="detail-status" class="font-semibold"></span></div>
+                <div class="flex justify-between"><span class="font-medium text-brand-600 dark:text-brand-400">Data/Hora:</span> <span id="detail-time" class="text-stone-800 dark:text-stone-200"></span></div>
+                <div class="flex justify-between"><span class="font-medium text-brand-600 dark:text-brand-400">Valor:</span> <span id="detail-price" class="text-emerald-700 dark:text-emerald-400 font-semibold"></span></div>
+                <div class="flex justify-between"><span class="font-medium text-brand-600 dark:text-brand-400">Telefone:</span> <span id="detail-phone" class="text-stone-800 dark:text-stone-200"></span></div>
+                <div class="flex justify-between"><span class="font-medium text-brand-600 dark:text-brand-400">Pagamento:</span> <span id="detail-payment" class="text-stone-800 dark:text-stone-200"></span></div>
+                <div class="flex justify-between"><span class="font-medium text-brand-600 dark:text-brand-400">Obs:</span> <span id="detail-notes" class="text-stone-800 dark:text-stone-200"></span></div>
                 <div id="detail-recurring-row" class="hidden">
-                    <div class="flex justify-between"><span class="font-medium text-brand-600">Recorrência:</span> <span id="detail-recurring" class="text-amber-700 font-semibold"></span></div>
+                    <div class="flex justify-between"><span class="font-medium text-brand-600 dark:text-brand-400">Recorrência:</span> <span id="detail-recurring" class="text-amber-700 dark:text-amber-400 font-semibold"></span></div>
                 </div>
             </div>
 
@@ -41,7 +41,7 @@
                 <input type="hidden" name="appointment_id" id="edit-id">
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-brand-700 mb-1">Cliente</label>
+                    <label class="block text-sm font-medium text-brand-700 dark:text-brand-300 mb-1">Cliente</label>
                     <div class="sel-wrap">
                         <div class="sel-trigger" data-target="edit-customer">
                             <span class="placeholder-text">Selecione um cliente...</span>
@@ -65,7 +65,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-brand-700 mb-1">Profissional</label>
+                    <label class="block text-sm font-medium text-brand-700 dark:text-brand-300 mb-1">Profissional</label>
                     <div class="sel-wrap">
                         <div class="sel-trigger" data-target="edit-user">
                             <span class="placeholder-text">Selecione um profissional...</span>
@@ -90,17 +90,17 @@
 
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-brand-700">Início</label>
+                        <label class="block text-sm font-medium text-brand-700 dark:text-brand-300">Início</label>
                         <input type="datetime-local" name="start" id="edit-start" required class="input-pastel">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-brand-700">Fim</label>
+                        <label class="block text-sm font-medium text-brand-700 dark:text-brand-300">Fim</label>
                         <input type="datetime-local" name="end" id="edit-end" required class="input-pastel">
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-brand-700 mb-1">Procedimentos</label>
+                    <label class="block text-sm font-medium text-brand-700 dark:text-brand-300 mb-1">Procedimentos</label>
                     <div class="sel-wrap sel-multi" id="editServiceSelectWrap">
                         <div class="sel-trigger" data-target="edit-service_ids">
                             <span class="placeholder-text">Selecione os procedimentos...</span>
@@ -127,15 +127,15 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-brand-700">Observações</label>
+                    <label class="block text-sm font-medium text-brand-700 dark:text-brand-300">Observações</label>
                     <textarea name="notes" id="edit-notes" rows="2" class="input-pastel"></textarea>
                 </div>
 
-                <div id="edit-recurring-section" class="hidden mb-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
-                    <h4 class="font-semibold text-sm text-amber-800 mb-2">Agendamento Recorrente</h4>
+                <div id="edit-recurring-section" class="hidden mb-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                    <h4 class="font-semibold text-sm text-amber-800 dark:text-amber-300 mb-2">Agendamento Recorrente</h4>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-xs font-medium text-amber-700">Repetir</label>
+                            <label class="block text-xs font-medium text-amber-700 dark:text-amber-400">Repetir</label>
                             <select name="recurring_frequency" id="edit-recurring-frequency" class="input-pastel text-sm">
                                 <option value="">Não repetir</option>
                                 <option value="daily">Diariamente</option>
@@ -145,11 +145,11 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-amber-700">Até</label>
+                            <label class="block text-xs font-medium text-amber-700 dark:text-amber-400">Até</label>
                             <input type="date" name="recurring_until" id="edit-recurring-until" class="input-pastel text-sm">
                         </div>
                     </div>
-                    <label class="flex items-center gap-2 mt-2 text-xs text-amber-700">
+                    <label class="flex items-center gap-2 mt-2 text-xs text-amber-700 dark:text-amber-400">
                         <input type="checkbox" name="update_all_series" id="edit-update-all-series" value="1" class="rounded border-amber-300 text-amber-600">
                         Aplicar a todos da série
                     </label>
@@ -298,13 +298,11 @@ window.deleteSeries = function() {
 };
 
 window.updateAppointmentStatus = function(status) {
-    console.log('updateAppointmentStatus called with:', { status, currentEventId });
     if (!window.currentEventId) {
         alert('Erro: ID do agendamento não definido');
         return;
     }
     const url = '/admin/appointments/' + window.currentEventId;
-    console.log('Fetching URL:', url);
     fetch(url, {
         method: 'PUT',
         headers: {
@@ -313,19 +311,23 @@ window.updateAppointmentStatus = function(status) {
         },
         body: JSON.stringify({ status: status })
     }).then(function(r) {
-        console.log('Response status:', r.status);
         if (!r.ok) throw new Error('Erro ao atualizar: ' + r.status);
         return r.json();
     }).then(function(resp) {
-        console.log('Response body:', resp);
         if (resp.success) {
             window.closeDetailModal();
             if (window.calendar) {
                 window.calendar.refetchEvents();
             }
+            if (resp.points_earned && resp.points_earned > 0) {
+                var toast = document.createElement('div');
+                toast.className = 'fixed bottom-4 right-4 bg-gradient-to-r from-violet-500 to-purple-600 text-white px-5 py-3 rounded-2xl shadow-2xl z-50 animate-bounce-in text-sm font-medium';
+                toast.innerHTML = '<span class="mr-1">&#11088;</span> Cliente ganhou <strong>' + resp.points_earned + '</strong> pontos! Total: <strong>' + resp.total_points + '</strong>';
+                document.body.appendChild(toast);
+                setTimeout(function() { toast.remove(); }, 4000);
+            }
         }
     }).catch(function(err) {
-        console.error('Fetch error:', err);
         alert(err.message);
     });
 };

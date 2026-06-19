@@ -118,7 +118,7 @@
                     </table>
                 </div>
                 @else
-                    <p class="text-sm text-stone-400">Nenhuma comissão registrada.</p>
+                    <p class="text-sm text-stone-400 dark:text-stone-500">Nenhuma comissão registrada.</p>
                 @endif
             </div>
 
@@ -145,7 +145,7 @@
                     @endforeach
                 </div>
                 @else
-                    <p class="text-sm text-stone-400">Nenhum pagamento registrado.</p>
+                    <p class="text-sm text-stone-400 dark:text-stone-500">Nenhum pagamento registrado.</p>
                 @endif
             </div>
         </div>
@@ -188,8 +188,8 @@ function toggleCustomRange(sel) {
     if (sel) el.classList.toggle('hidden', sel.value !== 'custom');
 }
 document.addEventListener('DOMContentLoaded', function() {
-    var brandColor = '#c94f2e';
-    var brandLight = '#f5ccb9';
+    var brandColor = '#7B8564';
+    var brandLight = '#E8EDDB';
 
     new Chart(document.getElementById('revenueChart'), {
         type: 'bar',
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
             labels: @json($topServices->pluck('name')),
             datasets: [{
                 data: @json($topServices->pluck('total')),
-                backgroundColor: ['#c94f2e','#e58560','#edab8d','#f5ccb9','#fae6dc','#a83d24','#dd6540','#8a3421','#fdf4f0','#712e1f'],
+                backgroundColor: ['#7B8564','#959E7D','#AFB796','#BAC893','#D1DAB7','#616C4B','#475332','#2D3A19','#E8EDDB','#F4F7EE'],
                 borderWidth: 0,
             }]
         },

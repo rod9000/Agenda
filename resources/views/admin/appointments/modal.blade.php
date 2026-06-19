@@ -1,15 +1,15 @@
 <div id="newAppointmentModal" class="hidden fixed inset-0 bg-brand-900/30 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-6 border w-full max-w-lg shadow-xl rounded-2xl bg-white/95">
+    <div class="relative top-20 mx-auto p-6 border w-full max-w-lg shadow-xl rounded-2xl bg-white/95 dark:bg-stone-800/95 dark:border-stone-700">
         <div class="flex justify-between items-center mb-6">
-            <h3 class="text-lg font-semibold text-brand-800">Novo Agendamento</h3>
-            <button onclick="document.getElementById('newAppointmentModal').classList.add('hidden')" class="text-brand-400 hover:text-brand-600 text-2xl leading-none">&times;</button>
+            <h3 class="text-lg font-semibold text-brand-800 dark:text-brand-200">Novo Agendamento</h3>
+            <button onclick="document.getElementById('newAppointmentModal').classList.add('hidden')" class="text-brand-400 hover:text-brand-600 dark:hover:text-brand-300 text-2xl leading-none">&times;</button>
         </div>
 
         <form id="newAppointmentForm">
             @csrf
 
             <div class="mb-4">
-                <label class="block text-sm font-medium text-brand-700 mb-1">Cliente</label>
+                <label class="block text-sm font-medium text-brand-700 dark:text-brand-300 mb-1">Cliente</label>
                 <div class="sel-wrap">
                     <div class="sel-trigger" data-target="customer_id">
                         <span class="placeholder-text">Selecione um cliente...</span>
@@ -33,7 +33,7 @@
             </div>
 
             <div class="mb-4">
-                <label class="block text-sm font-medium text-brand-700 mb-1">Profissional</label>
+                <label class="block text-sm font-medium text-brand-700 dark:text-brand-300 mb-1">Profissional</label>
                 <div class="sel-wrap">
                     <div class="sel-trigger" data-target="user_id">
                         <span class="placeholder-text">Selecione um profissional...</span>
@@ -58,17 +58,17 @@
 
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="block text-sm font-medium text-brand-700 mb-1">Início</label>
+                    <label class="block text-sm font-medium text-brand-700 dark:text-brand-300 mb-1">Início</label>
                     <input type="datetime-local" name="start" id="start" required class="input-pastel">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-brand-700 mb-1">Fim</label>
+                    <label class="block text-sm font-medium text-brand-700 dark:text-brand-300 mb-1">Fim</label>
                     <input type="datetime-local" name="end" id="end" required class="input-pastel">
                 </div>
             </div>
 
             <div class="mb-4">
-                <label class="block text-sm font-medium text-brand-700 mb-1">Procedimentos</label>
+                <label class="block text-sm font-medium text-brand-700 dark:text-brand-300 mb-1">Procedimentos</label>
                 <div class="sel-wrap sel-multi" id="serviceSelectWrap">
                     <div class="sel-trigger" data-target="service_ids">
                         <span class="placeholder-text">Selecione os procedimentos...</span>
@@ -94,11 +94,11 @@
                 <p id="serviceCount" class="text-xs text-stone-400 mt-1">Nenhum procedimento selecionado</p>
             </div>
 
-            <div class="mb-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
-                <h4 class="font-semibold text-sm text-amber-800 mb-2">Agendamento Recorrente</h4>
+            <div class="mb-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                <h4 class="font-semibold text-sm text-amber-800 dark:text-amber-300 mb-2">Agendamento Recorrente</h4>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block text-xs font-medium text-amber-700">Repetir</label>
+                        <label class="block text-xs font-medium text-amber-700 dark:text-amber-400">Repetir</label>
                         <select name="recurring_frequency" class="input-pastel text-sm">
                             <option value="">Não repetir</option>
                             <option value="daily">Diariamente</option>
@@ -108,14 +108,14 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-amber-700">Até</label>
+                        <label class="block text-xs font-medium text-amber-700 dark:text-amber-400">Até</label>
                         <input type="date" name="recurring_until" class="input-pastel text-sm">
                     </div>
                 </div>
             </div>
 
             <div class="mb-4">
-                <label class="block text-sm font-medium text-brand-700 mb-1">Observações</label>
+                <label class="block text-sm font-medium text-brand-700 dark:text-brand-300 mb-1">Observações</label>
                 <textarea name="notes" rows="2" class="input-pastel"></textarea>
             </div>
 

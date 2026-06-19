@@ -11,7 +11,7 @@
 <div class="py-6">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="card-pastel p-0">
-            <div class="p-4 border-b border-brand-100 bg-brand-50/30">
+            <div class="p-4 border-b border-brand-100 dark:border-stone-700 bg-brand-50/30 dark:bg-stone-800">
                 <form method="GET" class="flex flex-col sm:flex-row gap-2">
                     <input type="text" name="search" placeholder="Buscar por nome, CPF ou telefone..." value="{{ request('search') }}" class="input-pastel flex-1">
                     <button type="submit" class="btn-pastel-secondary">Buscar</button>

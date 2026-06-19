@@ -8,6 +8,15 @@ use Illuminate\Support\Facades\Artisan;
 
 class MigrationController extends Controller
 {
+    public function confirm()
+    {
+        if (!auth()->user()?->isAdmin()) {
+            abort(403);
+        }
+
+        return view('admin.migrate.confirm');
+    }
+
     public function run()
     {
         if (!auth()->user()?->isAdmin()) {

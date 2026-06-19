@@ -8,9 +8,11 @@
 <div class="py-6">
     <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
         <div class="card-pastel text-center">
-            <div class="text-6xl mb-4">💾</div>
-            <h3 class="text-lg font-semibold text-brand-800 mb-2">Backup do Banco de Dados</h3>
-            <p class="text-sm text-stone-500 mb-6">Faça o download de uma cópia completa do banco de dados em formato SQL.</p>
+            <div class="w-16 h-16 mx-auto mb-4 bg-brand-100 dark:bg-brand-900/30 rounded-2xl flex items-center justify-center">
+                <svg class="w-8 h-8 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+            </div>
+            <h3 class="text-lg font-semibold text-brand-800 dark:text-brand-200 mb-2">Backup do Banco de Dados</h3>
+            <p class="text-sm text-stone-500 dark:text-stone-400 mb-6">Faça o download de uma cópia completa do banco de dados em formato SQL.</p>
 
             <div class="flex justify-center gap-4">
                 <form method="POST" action="{{ route('admin.backup.run') }}" class="inline">

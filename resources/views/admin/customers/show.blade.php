@@ -14,7 +14,7 @@
 <div class="py-6">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div class="card-pastel text-center">
                 <div class="text-3xl font-bold text-brand-600">{{ $customer->appointments_count }}</div>
                 <div class="text-sm text-stone-500 mt-1">Total de Agendamentos</div>
@@ -30,6 +30,10 @@
             <div class="card-pastel text-center">
                 <div class="text-3xl font-bold text-amber-600">{{ $customer->birth_date->age }} anos</div>
                 <div class="text-sm text-stone-500 mt-1">Idade</div>
+            </div>
+            <div class="card-pastel text-center cursor-pointer hover:shadow-md transition-shadow" onclick="window.location='{{ route('admin.loyalty.customer', $customer) }}'">
+                <div class="text-3xl font-bold text-violet-600">{{ $customer->points ?? 0 }}</div>
+                <div class="text-sm text-stone-500 mt-1">Pontos @if(($customer->points ?? 0) > 0)<span class="text-xs text-violet-500">Ver &rarr;</span>@endif</div>
             </div>
         </div>
 
@@ -99,13 +103,7 @@
                         <div class="flex justify-between">
                             <dt class="text-stone-500">Status</dt>
                             <dd>
-                                @php $statusMap = ['scheduled' => 'Agendado', 'confirmed' => 'Confirmado', 'in_progress' => 'Em Andamento', 'completed' => 'Concluído', 'cancelled' => 'Cancelado', 'no_show' => 'Não Compareceu'] @endphp
-                                <span class="badge-pastel
-                                    @if($lastAppointment->status === 'completed') bg-emerald-100 text-emerald-700
-                                    @elseif($lastAppointment->status === 'cancelled' || $lastAppointment->status === 'no_show') bg-rose-100 text-rose-700
-                                    @else bg-sky-100 text-sky-700 @endif">
-                                    {{ $statusMap[$lastAppointment->status] ?? $lastAppointment->status }}
-                                </span>
+                                <x-status-badge :status="$lastAppointment->status" />
                             </dd>
                         </div>
                     </dl>
@@ -143,15 +141,7 @@
                                 <td>{{ $app->service->name }}</td>
                                 <td>{{ $app->user->name }}</td>
                                 <td>
-                                    @php $statusMap = ['scheduled' => 'Agendado', 'confirmed' => 'Confirmado', 'in_progress' => 'Em Andamento', 'completed' => 'Concluído', 'cancelled' => 'Cancelado', 'no_show' => 'Não Compareceu'] @endphp
-                                    <span class="badge-pastel
-                                        @if($app->status === 'completed') bg-emerald-100 text-emerald-700
-                                        @elseif($app->status === 'cancelled') bg-rose-100 text-rose-700
-                                        @elseif($app->status === 'no_show') bg-orange-100 text-orange-700
-                                        @elseif($app->status === 'in_progress') bg-amber-100 text-amber-700
-                                        @else bg-sky-100 text-sky-700 @endif">
-                                        {{ $statusMap[$app->status] ?? $app->status }}
-                                    </span>
+                                    <x-status-badge :status="$app->status" />
                                 </td>
                                 <td>R$ {{ number_format($app->service->price, 2, ',', '.') }}</td>
                             </tr>

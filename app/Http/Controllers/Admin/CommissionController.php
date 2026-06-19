@@ -48,6 +48,33 @@ class CommissionController extends Controller
         ));
     }
 
+    public function professionalStatement(Request $request, User $user)
+    {
+        $month = $request->get('month', now()->month);
+        $year = $request->get('year', now()->year);
+
+        $start = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+        $end = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+
+        $commissions = Commission::with(['appointment.customer', 'appointment.services'])
+            ->where('user_id', $user->id)
+            ->whereBetween('created_at', [$start, $end])
+            ->latest()
+            ->paginate(30);
+
+        $total = $commissions->sum('value');
+        $totalPaid = $commissions->where('paid', true)->sum('value');
+        $totalPending = $commissions->where('paid', false)->sum('value');
+
+        $months = collect(range(1, 12))->mapWithKeys(fn($m) => [$m => Carbon::create()->month($m)->format('F')]);
+        $years = range(now()->year - 2, now()->year);
+
+        return view('admin.commissions.professional', compact(
+            'user', 'commissions', 'total', 'totalPaid', 'totalPending',
+            'month', 'year', 'months', 'years'
+        ));
+    }
+
     public function markPaid(Commission $commission)
     {
         $commission->update([

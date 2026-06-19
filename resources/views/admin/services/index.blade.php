@@ -27,7 +27,7 @@
                         <tr>
                             <td class="hidpi:text-base">
                                 <span class="inline-block w-3 h-3 hidpi:w-4 hidpi:h-4 rounded-full mr-2 shadow-sm shrink-0" style="background: {{ $s->color_hex }}"></span>
-                                <span class="font-medium text-gray-800">{{ $s->name }}</span>
+                                <span class="font-medium text-gray-800 dark:text-stone-200">{{ $s->name }}</span>
                             </td>
                             <td class="hidpi:text-base">{{ $s->duration_min }} min</td>
                             <td class="text-emerald-700 font-medium hidpi:text-base">R$ {{ number_format($s->price, 2, ',', '.') }}</td>

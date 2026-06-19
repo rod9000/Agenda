@@ -55,15 +55,15 @@
                                     <button type="button" class="copy-trigger text-sm text-brand-600 hover:text-brand-800 font-medium flex items-center gap-1">
                                         Copiar <span class="text-xs">&#9660;</span>
                                     </button>
-                                    <div class="copy-dropdown hidden absolute right-0 z-50 mt-1 bg-white border border-brand-200 rounded-xl shadow-lg p-3 min-w-[200px]">
+                                    <div class="copy-dropdown hidden absolute right-0 z-50 mt-1 bg-white dark:bg-stone-800 border border-brand-200 dark:border-stone-600 rounded-xl shadow-lg p-3 min-w-[200px]">
                                         <form method="POST" action="{{ route('admin.settings.working-hours.copy') }}" class="copy-form">
                                             @csrf
                                             <input type="hidden" name="user_id" value="{{ $user->id }}">
                                             <input type="hidden" name="source_day" value="{{ $day }}">
-                                            <p class="text-xs text-stone-500 mb-2">Copiar para:</p>
+                                            <p class="text-xs text-stone-500 dark:text-stone-400 mb-2">Copiar para:</p>
                                             @foreach(range(0, 6) as $td)
                                             @if($td !== $day)
-                                            <label class="flex items-center gap-2 py-1 text-sm text-stone-700 cursor-pointer hover:text-brand-700">
+                                            <label class="flex items-center gap-2 py-1 text-sm text-stone-700 dark:text-stone-300 cursor-pointer hover:text-brand-700 dark:hover:text-brand-400">
                                                 <input type="checkbox" name="target_days[]" value="{{ $td }}" class="rounded border-brand-300 text-brand-600">
                                                 {{ $days[$td] }}
                                             </label>

@@ -67,6 +67,14 @@ files = [
     ("app/Console/Commands/SendReminders.php", "/htdocs/app/Console/Commands/SendReminders.php"),
     ("app/Console/Commands/RunBackup.php", "/htdocs/app/Console/Commands/RunBackup.php"),
 
+    # FormRequest classes
+    ("app/Http/Requests/StoreAppointmentRequest.php", "/htdocs/app/Http/Requests/StoreAppointmentRequest.php"),
+    ("app/Http/Requests/StoreCustomerRequest.php", "/htdocs/app/Http/Requests/StoreCustomerRequest.php"),
+    ("app/Http/Requests/StoreProductRequest.php", "/htdocs/app/Http/Requests/StoreProductRequest.php"),
+    ("app/Http/Requests/StoreServiceRequest.php", "/htdocs/app/Http/Requests/StoreServiceRequest.php"),
+    ("app/Http/Requests/StoreUserRequest.php", "/htdocs/app/Http/Requests/StoreUserRequest.php"),
+    ("app/Http/Requests/UpdateUserRequest.php", "/htdocs/app/Http/Requests/UpdateUserRequest.php"),
+
     # Providers
     ("app/Providers/AppServiceProvider.php", "/htdocs/app/Providers/AppServiceProvider.php"),
 
@@ -101,6 +109,22 @@ files = [
     ("resources/views/components/input.blade.php", "/htdocs/resources/views/components/input.blade.php"),
     ("resources/views/components/dropdown.blade.php", "/htdocs/resources/views/components/dropdown.blade.php"),
     ("resources/views/components/status-badge.blade.php", "/htdocs/resources/views/components/status-badge.blade.php"),
+    ("resources/views/components/toast.blade.php", "/htdocs/resources/views/components/toast.blade.php"),
+    ("resources/views/components/label.blade.php", "/htdocs/resources/views/components/label.blade.php"),
+    ("resources/views/components/auth-card.blade.php", "/htdocs/resources/views/components/auth-card.blade.php"),
+    ("resources/views/components/auth-session-status.blade.php", "/htdocs/resources/views/components/auth-session-status.blade.php"),
+    ("resources/views/components/auth-validation-errors.blade.php", "/htdocs/resources/views/components/auth-validation-errors.blade.php"),
+
+    # Auth views
+    ("resources/views/auth/login.blade.php", "/htdocs/resources/views/auth/login.blade.php"),
+    ("resources/views/auth/register.blade.php", "/htdocs/resources/views/auth/register.blade.php"),
+    ("resources/views/auth/forgot-password.blade.php", "/htdocs/resources/views/auth/forgot-password.blade.php"),
+    ("resources/views/auth/reset-password.blade.php", "/htdocs/resources/views/auth/reset-password.blade.php"),
+    ("resources/views/auth/confirm-password.blade.php", "/htdocs/resources/views/auth/confirm-password.blade.php"),
+    ("resources/views/auth/verify-email.blade.php", "/htdocs/resources/views/auth/verify-email.blade.php"),
+
+    # Layouts
+    ("resources/views/layouts/guest.blade.php", "/htdocs/resources/views/layouts/guest.blade.php"),
 
     # CSS/JS (compiled assets)
     ("public/css/app.css", "/htdocs/public/css/app.css"),
@@ -109,6 +133,31 @@ files = [
     # Config
     ("tailwind.config.js", "/htdocs/tailwind.config.js"),
     ("resources/css/app.css", "/htdocs/resources/css/app.css"),
+
+    # Loyalty + Stock + Commission + Reschedule views
+    ("resources/views/admin/loyalty/index.blade.php", "/htdocs/resources/views/admin/loyalty/index.blade.php"),
+    ("resources/views/admin/loyalty/create.blade.php", "/htdocs/resources/views/admin/loyalty/create.blade.php"),
+    ("resources/views/admin/loyalty/edit.blade.php", "/htdocs/resources/views/admin/loyalty/edit.blade.php"),
+    ("resources/views/admin/loyalty/customer.blade.php", "/htdocs/resources/views/admin/loyalty/customer.blade.php"),
+    ("resources/views/admin/products/stock-report.blade.php", "/htdocs/resources/views/admin/products/stock-report.blade.php"),
+    ("resources/views/admin/products/movements.blade.php", "/htdocs/resources/views/admin/products/movements.blade.php"),
+    ("resources/views/admin/commissions/professional.blade.php", "/htdocs/resources/views/admin/commissions/professional.blade.php"),
+    ("resources/views/public/reagendar.blade.php", "/htdocs/resources/views/public/reagendar.blade.php"),
+    ("resources/views/admin/migrate/confirm.blade.php", "/htdocs/resources/views/admin/migrate/confirm.blade.php"),
+
+    # Loyalty migrations
+    ("database/migrations/2026_06_19_000002_add_points_to_customers_table.php", "/htdocs/database/migrations/2026_06_19_000002_add_points_to_customers_table.php"),
+    ("database/migrations/2026_06_19_000003_create_loyalty_rewards_table.php", "/htdocs/database/migrations/2026_06_19_000003_create_loyalty_rewards_table.php"),
+    ("database/migrations/2026_06_19_000004_create_loyalty_redemptions_table.php", "/htdocs/database/migrations/2026_06_19_000004_create_loyalty_redemptions_table.php"),
+    ("database/migrations/2026_06_19_000005_add_performance_indexes.php", "/htdocs/database/migrations/2026_06_19_000005_add_performance_indexes.php"),
+
+    # Loyalty command
+    ("app/Console/Commands/RecalculateLoyaltyPoints.php", "/htdocs/app/Console/Commands/RecalculateLoyaltyPoints.php"),
+
+    # Loyalty controller + models
+    ("app/Http/Controllers/Admin/LoyaltyController.php", "/htdocs/app/Http/Controllers/Admin/LoyaltyController.php"),
+    ("app/Models/LoyaltyReward.php", "/htdocs/app/Models/LoyaltyReward.php"),
+    ("app/Models/LoyaltyRedemption.php", "/htdocs/app/Models/LoyaltyRedemption.php"),
 
     # Env (locale .env.ftp -> servidor .env)
     (".env.ftp", "/htdocs/.env"),

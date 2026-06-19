@@ -30,27 +30,34 @@ class DashboardController extends Controller
 
         $isAdmin = auth()->user()->isAdmin();
 
-        // --- Queries base ---
-        $baseAppointments = Appointment::whereBetween('start', [$periodStart, $periodEnd]);
+        // --- Agregação única de status ---
+        $statusAgg = Appointment::whereBetween('start', [$periodStart, $periodEnd])
+            ->selectRaw("
+                COUNT(*) as total,
+                SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
+                SUM(CASE WHEN status = 'scheduled' OR status = 'confirmed' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN status = 'cancelled' OR status = 'no_show' THEN 1 ELSE 0 END) as cancelled
+            ")->first();
 
-        $completed = (clone $baseAppointments)->where('status', 'completed');
-        $cancelled = (clone $baseAppointments)->whereIn('status', ['cancelled', 'no_show']);
-        $pending = (clone $baseAppointments)->whereIn('status', ['scheduled', 'confirmed']);
+        $totalInPeriod = (int) ($statusAgg->total ?? 0);
+        $completedCount = (int) ($statusAgg->completed ?? 0);
+        $pendingCount = (int) ($statusAgg->pending ?? 0);
+        $cancelledCount = (int) ($statusAgg->cancelled ?? 0);
 
-        // --- Revenue (via pivot) ---
-        $revenue = (float) (clone $completed)
+        // --- Revenue agregado ---
+        $revenue = (float) Appointment::where('status', 'completed')
+            ->whereBetween('start', [$periodStart, $periodEnd])
             ->join('appointment_service', 'appointments.id', '=', 'appointment_service.appointment_id')
             ->sum('appointment_service.price');
 
-        $completedCount = (clone $completed)->count();
-        $pendingCount = (clone $pending)->count();
-        $cancelledCount = (clone $cancelled)->count();
-
-        $uniqueCustomers = (clone $completed)->distinct('customer_id')->count('customer_id');
+        $uniqueCustomers = (int) Appointment::where('status', 'completed')
+            ->whereBetween('start', [$periodStart, $periodEnd])
+            ->distinct('customer_id')
+            ->count('customer_id');
 
         $avgTicket = $completedCount > 0 ? $revenue / $completedCount : 0;
 
-        // --- Receita Dia/Semana/Mês (corrigido: usa appointment_service) ---
+        // --- Receita Dia/Semana/Mês ---
         $todayRange = [Carbon::today(), Carbon::today()->endOfDay()];
         $weekRange  = [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()];
         $monthRange = [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()];
@@ -59,18 +66,28 @@ class DashboardController extends Controller
         $revenueWeek = $this->revenueInRange($weekRange);
         $revenueMonth = $this->revenueInRange($monthRange);
 
-        $countDay = Appointment::where('status', 'completed')
-            ->whereBetween('start', $todayRange)->count();
-        $countWeek = Appointment::where('status', 'completed')
-            ->whereBetween('start', $weekRange)->count();
-        $countMonth = Appointment::where('status', 'completed')
-            ->whereBetween('start', $monthRange)->count();
+        // --- Contagens Dia/Semana/Mês em 1 query agregada ---
+        $completedAgg = Appointment::where('status', 'completed')
+            ->selectRaw("
+                SUM(CASE WHEN start >= ? AND start <= ? THEN 1 ELSE 0 END) as count_day,
+                SUM(CASE WHEN start >= ? AND start <= ? THEN 1 ELSE 0 END) as count_week,
+                SUM(CASE WHEN start >= ? AND start <= ? THEN 1 ELSE 0 END) as count_month
+            ", [
+                $todayRange[0], $todayRange[1],
+                $weekRange[0], $weekRange[1],
+                $monthRange[0], $monthRange[1],
+            ])->first();
 
-        // --- Gráfico de barras (7 dias) ---
+        $countDay = (int) ($completedAgg->count_day ?? 0);
+        $countWeek = (int) ($completedAgg->count_week ?? 0);
+        $countMonth = (int) ($completedAgg->count_month ?? 0);
+
+        // --- Gráfico de 7 dias: 1 query ---
         $chartData = $this->weeklyChartData();
 
-        // --- Top 5 serviços do período ---
-        $topServices = (clone $completed)
+        // --- Top 5 serviços ---
+        $topServices = Appointment::where('status', 'completed')
+            ->whereBetween('start', [$periodStart, $periodEnd])
             ->join('appointment_service', 'appointments.id', '=', 'appointment_service.appointment_id')
             ->join('services', 'appointment_service.service_id', '=', 'services.id')
             ->select('services.id', 'services.name', 'services.color_hex',
@@ -104,7 +121,6 @@ class DashboardController extends Controller
             ->orderBy('birth_date')
             ->get();
 
-        // --- Comissões pendentes ---
         $pendingCommissions = Commission::where('paid', false)->sum('value');
 
         // --- Comparativo com período anterior ---
@@ -112,14 +128,14 @@ class DashboardController extends Controller
         $prevPeriodStart = $periodStart->copy()->subDays($periodLength);
         $prevPeriodEnd = $periodStart->copy()->subDay();
 
-        $prevRevenue = (float) Appointment::where('status', 'completed')
+        $prevAgg = Appointment::where('status', 'completed')
             ->whereBetween('start', [$prevPeriodStart, $prevPeriodEnd])
             ->join('appointment_service', 'appointments.id', '=', 'appointment_service.appointment_id')
-            ->sum('appointment_service.price');
+            ->selectRaw('SUM(appointment_service.price) as revenue, COUNT(DISTINCT appointments.id) as total_count')
+            ->first();
 
-        $prevCompletedCount = Appointment::where('status', 'completed')
-            ->whereBetween('start', [$prevPeriodStart, $prevPeriodEnd])
-            ->count();
+        $prevRevenue = (float) ($prevAgg->revenue ?? 0);
+        $prevCompletedCount = (int) ($prevAgg->total_count ?? 0);
 
         $revenueChange = $prevRevenue > 0
             ? round(($revenue - $prevRevenue) / $prevRevenue * 100, 1)
@@ -129,25 +145,26 @@ class DashboardController extends Controller
             ? round(($completedCount - $prevCompletedCount) / $prevCompletedCount * 100, 1)
             : ($completedCount > 0 ? 100 : 0);
 
-        // --- Taxa de cancelamento ---
         $totalFinished = $completedCount + $cancelledCount;
         $cancellationRate = $totalFinished > 0 ? round($cancelledCount / $totalFinished * 100, 1) : 0;
-
-        // --- Taxa de conversão ---
-        $totalInPeriod = (clone $baseAppointments)->count();
         $conversionRate = $totalInPeriod > 0 ? round($completedCount / $totalInPeriod * 100, 1) : 0;
 
         // --- Dia da semana mais movimentado ---
         $dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-        $dayCounts = (clone $completed)
-            ->get()
-            ->countBy(fn($app) => $app->start->dayOfWeek);
-        $busiestDayIndex = $dayCounts->sortDesc()->keys()->first();
+        $dayCounts = Appointment::where('status', 'completed')
+            ->whereBetween('start', [$periodStart, $periodEnd])
+            ->selectRaw('WEEKDAY(start) as day_index, COUNT(*) as total')
+            ->groupBy('day_index')
+            ->orderByDesc('total')
+            ->pluck('total', 'day_index');
+
+        $busiestDayIndex = $dayCounts->isNotEmpty() ? $dayCounts->keys()->first() : null;
         $busiestDayName = $busiestDayIndex !== null ? $dayNames[$busiestDayIndex] : '—';
         $busiestDayCount = $dayCounts->get($busiestDayIndex, 0);
 
         // --- Performance por profissional (admin) ---
         $profPerformance = collect();
+        $profRevenue = collect();
         if ($isAdmin) {
             $profPerformance = User::where('active', true)
                 ->withCount(['appointments' => function ($q) use ($periodStart, $periodEnd) {
@@ -157,12 +174,9 @@ class DashboardController extends Controller
                 ->get()
                 ->filter(fn($u) => $u->appointments_count > 0)
                 ->values();
-        }
 
-        // --- Receita por profissional (admin) ---
-        $profRevenue = collect();
-        if ($isAdmin) {
-            $profRevenue = (clone $completed)
+            $profRevenue = Appointment::where('status', 'completed')
+                ->whereBetween('start', [$periodStart, $periodEnd])
                 ->join('appointment_service', 'appointments.id', '=', 'appointment_service.appointment_id')
                 ->join('users', 'appointments.user_id', '=', 'users.id')
                 ->select('users.id', 'users.name',
@@ -200,16 +214,22 @@ class DashboardController extends Controller
 
     private function weeklyChartData(): array
     {
+        $weekStart = Carbon::now()->startOfWeek();
+        $weekEnd = Carbon::now()->endOfWeek();
+
+        $revenueByDay = Appointment::where('status', 'completed')
+            ->whereBetween('start', [$weekStart, $weekEnd])
+            ->join('appointment_service', 'appointments.id', '=', 'appointment_service.appointment_id')
+            ->selectRaw('WEEKDAY(start) as day_index, SUM(appointment_service.price) as total')
+            ->groupBy('day_index')
+            ->pluck('total', 'day_index');
+
         $data = [];
         for ($i = 0; $i < 7; $i++) {
-            $day = Carbon::now()->startOfWeek()->addDays($i);
-            $total = Appointment::where('status', 'completed')
-                ->whereDate('start', $day)
-                ->join('appointment_service', 'appointments.id', '=', 'appointment_service.appointment_id')
-                ->sum('appointment_service.price');
+            $day = $weekStart->copy()->addDays($i);
             $data[] = [
                 'label' => $day->locale('pt-BR')->isoFormat('ddd'),
-                'value' => (float) $total,
+                'value' => (float) ($revenueByDay->get($i, 0)),
             ];
         }
         return $data;

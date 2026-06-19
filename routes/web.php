@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\CommissionController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\LoyaltyController;
 use App\Http\Controllers\Admin\MigrationController;
 
 Route::get('/', function () {
@@ -39,6 +40,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('settings/blocked-slots', [SettingsController::class, 'blockedSlotsStore'])->name('settings.blocked-slots.store');
     Route::delete('settings/blocked-slots/{blockedSlot}', [SettingsController::class, 'blockedSlotsDestroy'])->name('settings.blocked-slots.destroy');
 
+    Route::get('products/movements', [ProductController::class, 'movements'])->name('products.movements');
+    Route::get('products/stock-report', [ProductController::class, 'stockReport'])->name('products.stock-report');
     Route::resource('products', ProductController::class)->except(['show']);
     Route::get('products/{product}', [ProductController::class, 'show'])->name('products.show');
     Route::post('products/movement', [ProductController::class, 'movementStore'])->name('products.movement.store');
@@ -53,6 +56,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('financial/payments', [FinancialController::class, 'store'])->name('financial.payments.store');
 
     Route::get('commissions', [CommissionController::class, 'index'])->name('commissions.index');
+    Route::get('commissions/professional/{user}', [CommissionController::class, 'professionalStatement'])->name('commissions.professional');
     Route::post('commissions/{commission}/mark-paid', [CommissionController::class, 'markPaid'])->name('commissions.mark-paid');
 
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
@@ -62,7 +66,17 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('backup/run', [BackupController::class, 'run'])->name('backup.run');
     Route::get('backup/download/{filename}', [BackupController::class, 'download'])->name('backup.download');
 
-    Route::get('migrate', [MigrationController::class, 'run'])->name('migrate');
+    Route::get('loyalty', [LoyaltyController::class, 'index'])->name('loyalty.index');
+    Route::get('loyalty/create', [LoyaltyController::class, 'create'])->name('loyalty.create');
+    Route::post('loyalty', [LoyaltyController::class, 'store'])->name('loyalty.store');
+    Route::get('loyalty/{loyaltyReward}/edit', [LoyaltyController::class, 'edit'])->name('loyalty.edit');
+    Route::put('loyalty/{loyaltyReward}', [LoyaltyController::class, 'update'])->name('loyalty.update');
+    Route::delete('loyalty/{loyaltyReward}', [LoyaltyController::class, 'destroy'])->name('loyalty.destroy');
+    Route::get('customers/{customer}/points', [LoyaltyController::class, 'customerPoints'])->name('loyalty.customer');
+    Route::post('customers/{customer}/redeem', [LoyaltyController::class, 'redeem'])->name('loyalty.redeem');
+
+    Route::get('migrate', [MigrationController::class, 'confirm'])->name('migrate.confirm');
+    Route::post('migrate', [MigrationController::class, 'run'])->name('migrate');
 
     Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments.index');
     Route::get('appointments/calendar-data', [AppointmentController::class, 'calendarData'])->name('appointments.calendar-data');
@@ -72,10 +86,16 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::delete('appointments/{appointment}', [AppointmentController::class, 'destroy'])->name('appointments.destroy');
 });
 
-Route::get('/agendar', [App\Http\Controllers\PublicController::class, 'booking'])->name('public.booking');
-Route::get('/agendar/slots', [App\Http\Controllers\PublicController::class, 'getSlots'])->name('public.slots');
-Route::get('/agendar/buscar-cliente', [App\Http\Controllers\PublicController::class, 'searchCustomer'])->name('public.search-customer');
-Route::post('/agendar', [App\Http\Controllers\PublicController::class, 'store'])->name('public.booking.store');
+Route::middleware('throttle:10,1')->group(function () {
+    Route::get('/agendar', [App\Http\Controllers\PublicController::class, 'booking'])->name('public.booking');
+    Route::get('/agendar/slots', [App\Http\Controllers\PublicController::class, 'getSlots'])->name('public.slots');
+    Route::get('/agendar/buscar-cliente', [App\Http\Controllers\PublicController::class, 'searchCustomer'])->name('public.search-customer');
+    Route::post('/agendar', [App\Http\Controllers\PublicController::class, 'store'])->name('public.booking.store');
+});
+Route::middleware('throttle:5,1')->group(function () {
+    Route::get('/reagendar/{token}', [App\Http\Controllers\PublicController::class, 'reagendar'])->name('public.reagendar');
+    Route::post('/reagendar/{token}', [App\Http\Controllers\PublicController::class, 'reagendarStore'])->name('public.reagendar.store');
+});
 Route::get('/confirmar/{token}', [App\Http\Controllers\PublicController::class, 'confirmar'])->name('public.confirmar');
 
 Route::get('/dashboard', function () {

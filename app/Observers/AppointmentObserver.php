@@ -18,6 +18,21 @@ class AppointmentObserver
     public function updated(Appointment $appointment)
     {
         $old = $appointment->getOriginal();
+
+        if (($old['status'] ?? '') !== 'completed' && $appointment->status === 'completed') {
+            $appointment->load('customer', 'services');
+            if ($appointment->customer) {
+                $totalPrice = $appointment->services->sum('pivot.price');
+                $pointsEarned = (int) floor($totalPrice);
+                $appointment->customer->addPoints($pointsEarned);
+                $appointment->customer->increment('total_visits');
+
+                ActivityLog::log('updated', $appointment,
+                    "Cliente '{$appointment->customer->name}' ganhou {$pointsEarned} pontos (total: {$appointment->customer->points}).",
+                    $old, $appointment->toArray());
+            }
+        }
+
         $changes = [];
         foreach ($appointment->getChanges() as $key => $value) {
             if ($key !== 'updated_at') {

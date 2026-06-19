@@ -25,3 +25,10 @@
     .empty-state svg { @apply w-12 h-12 mx-auto mb-3 text-brand-300 dark:text-brand-600; }
     .empty-state p { @apply text-brand-400 dark:text-brand-500 text-sm; }
 }
+
+@media print {
+    nav, header, .btn-pastel-primary, .btn-pastel-secondary, .btn-pastel-danger, .btn-pastel-success,
+    [x-cloak], .no-print, form, .fixed { display: none !important; }
+    body { background: white !important; color: black !important; }
+    .card-pastel { box-shadow: none !important; border: 1px solid #ddd !important; break-inside: avoid; background: white !important; color: black !important; }
+}

@@ -69,7 +69,7 @@
                         @endforeach
                     </div>
                 @else
-                    <p class="text-brand-400 text-center py-8">Nenhum pagamento no período.</p>
+                    <p class="text-brand-400 dark:text-brand-500 text-center py-8">Nenhum pagamento no período.</p>
                 @endif
             </div>
         </div>
@@ -109,7 +109,10 @@
                             <td class="px-2 py-2 text-stone-600 dark:text-stone-400">{{ $p->registeredBy?->name ?? '—' }}</td>
                         </tr>
                         @empty
-                        <tr><td colspan="6" class="px-4 py-8 text-center text-brand-400">Nenhum pagamento encontrado.</td></tr>
+                        <tr><td colspan="6" class="px-4 py-8 text-center">
+                            <svg class="w-10 h-10 mx-auto mb-2 text-brand-300 dark:text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <p class="text-brand-400 dark:text-brand-500 text-sm">Nenhum pagamento encontrado.</p>
+                        </td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -125,6 +128,8 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+var isDark = document.documentElement.classList.contains('dark');
+var gridColor = isDark ? '#44403c' : '#f0fdf4';
 new Chart(document.getElementById('financialChart'), {
     type: 'bar',
     data: {
@@ -132,14 +137,14 @@ new Chart(document.getElementById('financialChart'), {
         datasets: [{
             label: 'Receita (R$)',
             data: @json(array_column($chartData, 'value')),
-            backgroundColor: '#22c55e',
+            backgroundColor: '#7B8564',
             borderRadius: 6,
         }]
     },
     options: {
         responsive: true,
         plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, grid: { color: '#f0fdf4' } } }
+        scales: { y: { beginAtZero: true, grid: { color: gridColor } } }
     }
 });
 </script>
