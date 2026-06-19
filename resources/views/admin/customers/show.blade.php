@@ -36,7 +36,18 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="md:col-span-1 space-y-6">
                 <div class="card-pastel">
-                    <h3 class="font-semibold text-brand-700 mb-3">Dados do Cliente</h3>
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-16 h-16 rounded-full overflow-hidden bg-brand-100 flex items-center justify-center flex-shrink-0">
+                            @if($customer->photo)
+                                <img src="{{ $customer->photo }}" alt="{{ $customer->name }}" class="w-full h-full object-cover">
+                            @else
+                                <svg class="w-7 h-7 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            @endif
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-brand-700">Dados do Cliente</h3>
+                        </div>
+                    </div>
                     <dl class="space-y-2 text-sm">
                         <div class="flex justify-between">
                             <dt class="text-stone-500">Nome</dt>

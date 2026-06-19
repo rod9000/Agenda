@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('header')
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
         <h2 class="font-semibold text-xl text-brand-800 leading-tight">Financeiro</h2>
         <form method="GET" class="flex items-center gap-2">
             <select name="method" onchange="this.form.submit()" class="input-pastel text-sm">
@@ -79,34 +79,34 @@
                 <h3 class="font-semibold text-brand-700">Pagamentos Recebidos</h3>
             </div>
             <div class="overflow-x-auto">
-                <table class="table-pastel">
+                <table class="w-full text-sm whitespace-nowrap">
                     <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Cliente</th>
-                            <th>Serviço</th>
-                            <th>Valor</th>
-                            <th>Forma</th>
-                            <th>Registrado por</th>
+                        <tr class="bg-brand-50/50 dark:bg-stone-700">
+                            <th class="px-2 py-2 text-left font-semibold text-brand-700 dark:text-brand-300">Data</th>
+                            <th class="px-2 py-2 text-left font-semibold text-brand-700 dark:text-brand-300">Cliente</th>
+                            <th class="px-2 py-2 text-left font-semibold text-brand-700 dark:text-brand-300">Serviço</th>
+                            <th class="px-2 py-2 text-right font-semibold text-brand-700 dark:text-brand-300">Valor</th>
+                            <th class="px-2 py-2 text-left font-semibold text-brand-700 dark:text-brand-300">Forma</th>
+                            <th class="px-2 py-2 text-left font-semibold text-brand-700 dark:text-brand-300">Registrado por</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($payments as $p)
-                        <tr>
-                            <td>{{ $p->paid_at->format('d/m/Y H:i') }}</td>
-                            <td class="font-medium">{{ $p->appointment?->customer?->name ?? '—' }}</td>
-                            <td>{{ $p->appointment?->service?->name ?? '—' }}</td>
-                            <td class="font-semibold text-emerald-700">R$ {{ number_format($p->amount, 2, ',', '.') }}</td>
-                            <td>
+                        <tr class="border-t border-brand-100/50 hover:bg-brand-50/50 dark:border-stone-700 dark:hover:bg-stone-700/50">
+                            <td class="px-2 py-2 text-stone-600 dark:text-stone-400">{{ $p->paid_at->format('d/m/Y H:i') }}</td>
+                            <td class="px-2 py-2 font-medium text-gray-800 dark:text-stone-200">{{ $p->appointment?->customer?->name ?? '—' }}</td>
+                            <td class="px-2 py-2 text-stone-600 dark:text-stone-400">{{ $p->appointment?->service?->name ?? '—' }}</td>
+                            <td class="px-2 py-2 font-semibold text-emerald-700 dark:text-emerald-400 text-right">R$ {{ number_format($p->amount, 2, ',', '.') }}</td>
+                            <td class="px-2 py-2">
                                 @php
                                     $methodLabels = ['dinheiro' => 'Dinheiro', 'cartao' => 'Cartão', 'pix' => 'PIX'];
-                                    $methodColors = ['dinheiro' => 'bg-emerald-100 text-emerald-700', 'cartao' => 'bg-blue-100 text-blue-700', 'pix' => 'bg-purple-100 text-purple-700'];
+                                    $methodColors = ['dinheiro' => 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400', 'cartao' => 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', 'pix' => 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'];
                                 @endphp
-                                <span class="badge-pastel {{ $methodColors[$p->method] ?? 'bg-stone-100 text-stone-700' }}">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $methodColors[$p->method] ?? 'bg-stone-100 text-stone-700' }}">
                                     {{ $methodLabels[$p->method] ?? $p->method }}
                                 </span>
                             </td>
-                            <td>{{ $p->registeredBy?->name ?? '—' }}</td>
+                            <td class="px-2 py-2 text-stone-600 dark:text-stone-400">{{ $p->registeredBy?->name ?? '—' }}</td>
                         </tr>
                         @empty
                         <tr><td colspan="6" class="px-4 py-8 text-center text-brand-400">Nenhum pagamento encontrado.</td></tr>

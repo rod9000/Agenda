@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('header')
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
         <h2 class="font-semibold text-xl text-brand-800 leading-tight">Comissões</h2>
         <form method="GET" class="flex items-center gap-2">
             <select name="user_id" onchange="this.form.submit()" class="input-pastel text-sm">
@@ -69,38 +69,38 @@
                 <h3 class="font-semibold text-brand-700">Comissões Geradas</h3>
             </div>
             <div class="overflow-x-auto">
-                <table class="table-pastel">
+                <table class="w-full text-sm whitespace-nowrap">
                     <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Profissional</th>
-                            <th>Cliente</th>
-                            <th>Serviço</th>
-                            <th>Valor</th>
-                            <th>Status</th>
-                            <th></th>
+                        <tr class="bg-brand-50/50 dark:bg-stone-700">
+                            <th class="px-2 py-2 text-left font-semibold text-brand-700 dark:text-brand-300">Data</th>
+                            <th class="px-2 py-2 text-left font-semibold text-brand-700 dark:text-brand-300">Profissional</th>
+                            <th class="px-2 py-2 text-left font-semibold text-brand-700 dark:text-brand-300">Cliente</th>
+                            <th class="px-2 py-2 text-left font-semibold text-brand-700 dark:text-brand-300">Serviço</th>
+                            <th class="px-2 py-2 text-left font-semibold text-brand-700 dark:text-brand-300">Valor</th>
+                            <th class="px-2 py-2 text-left font-semibold text-brand-700 dark:text-brand-300">Status</th>
+                            <th class="px-2 py-2 text-right font-semibold text-brand-700 dark:text-brand-300"></th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($commissions as $c)
-                        <tr>
-                            <td>{{ $c->created_at->format('d/m/Y') }}</td>
-                            <td class="font-medium">{{ $c->user->name }}</td>
-                            <td>{{ $c->appointment?->customer?->name ?? '—' }}</td>
-                            <td>{{ $c->appointment?->service?->name ?? '—' }}</td>
-                            <td class="font-semibold">R$ {{ number_format($c->value, 2, ',', '.') }}</td>
-                            <td>
+                        <tr class="border-t border-brand-100/50 hover:bg-brand-50/50 dark:border-stone-700 dark:hover:bg-stone-700/50">
+                            <td class="px-2 py-2 text-stone-600 dark:text-stone-400">{{ $c->created_at->format('d/m/Y') }}</td>
+                            <td class="px-2 py-2 font-medium text-gray-800 dark:text-stone-200">{{ $c->user->name }}</td>
+                            <td class="px-2 py-2 text-stone-600 dark:text-stone-400">{{ $c->appointment?->customer?->name ?? '—' }}</td>
+                            <td class="px-2 py-2 text-stone-600 dark:text-stone-400">{{ $c->appointment?->service?->name ?? '—' }}</td>
+                            <td class="px-2 py-2 font-semibold text-gray-800 dark:text-stone-200">R$ {{ number_format($c->value, 2, ',', '.') }}</td>
+                            <td class="px-2 py-2">
                                 @if($c->paid)
-                                    <span class="badge-pastel bg-emerald-100 text-emerald-700">Pago</span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Pago</span>
                                 @else
-                                    <span class="badge-pastel bg-amber-100 text-amber-700">Pendente</span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Pendente</span>
                                 @endif
                             </td>
-                            <td>
+                            <td class="px-2 py-2 text-right">
                                 @if(!$c->paid)
                                 <form method="POST" action="{{ route('admin.commissions.mark-paid', $c) }}" class="inline" onsubmit="return confirm('Marcar comissão como paga?')">
                                     @csrf
-                                    <button type="submit" class="text-sm text-emerald-600 hover:text-emerald-800 font-medium">Marcar Pago</button>
+                                    <button type="submit" class="px-2 py-1 text-xs font-medium text-emerald-600 hover:text-emerald-800">Marcar Pago</button>
                                 </form>
                                 @endif
                             </td>

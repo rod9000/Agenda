@@ -67,6 +67,7 @@ class CustomerController extends Controller
             'phone'      => 'required|string|max:20',
             'birth_date' => 'required|date',
             'email'      => 'nullable|email|max:100',
+            'photo'      => 'nullable|string',
             'notes'      => 'nullable|string',
         ]);
 
@@ -91,6 +92,7 @@ class CustomerController extends Controller
             'phone'      => 'required|string|max:20',
             'birth_date' => 'required|date',
             'email'      => 'nullable|email|max:100',
+            'photo'      => 'nullable|string',
             'notes'      => 'nullable|string',
         ]);
 

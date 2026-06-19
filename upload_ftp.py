@@ -90,13 +90,25 @@ files = [
     ("resources/views/admin/settings/working-hours.blade.php", "/htdocs/resources/views/admin/settings/working-hours.blade.php"),
     ("resources/views/admin/logs/index.blade.php", "/htdocs/resources/views/admin/logs/index.blade.php"),
     ("resources/views/public/booking.blade.php", "/htdocs/resources/views/public/booking.blade.php"),
+    ("resources/views/public/confirmacao.blade.php", "/htdocs/resources/views/public/confirmacao.blade.php"),
     ("resources/views/admin/appointments/index.blade.php", "/htdocs/resources/views/admin/appointments/index.blade.php"),
     ("resources/views/admin/appointments/modal.blade.php", "/htdocs/resources/views/admin/appointments/modal.blade.php"),
     ("resources/views/admin/appointments/detail_modal.blade.php", "/htdocs/resources/views/admin/appointments/detail_modal.blade.php"),
+    ("resources/views/admin/dashboard.blade.php", "/htdocs/resources/views/admin/dashboard.blade.php"),
+
+    # Components
+    ("resources/views/components/button.blade.php", "/htdocs/resources/views/components/button.blade.php"),
+    ("resources/views/components/input.blade.php", "/htdocs/resources/views/components/input.blade.php"),
+    ("resources/views/components/dropdown.blade.php", "/htdocs/resources/views/components/dropdown.blade.php"),
+    ("resources/views/components/status-badge.blade.php", "/htdocs/resources/views/components/status-badge.blade.php"),
 
     # CSS/JS (compiled assets)
     ("public/css/app.css", "/htdocs/public/css/app.css"),
     ("public/js/app.js", "/htdocs/public/js/app.js"),
+
+    # Config
+    ("tailwind.config.js", "/htdocs/tailwind.config.js"),
+    ("resources/css/app.css", "/htdocs/resources/css/app.css"),
 
     # Env (locale .env.ftp -> servidor .env)
     (".env.ftp", "/htdocs/.env"),

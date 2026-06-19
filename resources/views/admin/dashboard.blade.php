@@ -24,30 +24,48 @@
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
         {{-- Métricas principais --}}
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
             <div class="card-pastel border-l-4 border-brand-400">
-                <div class="text-xs font-medium text-brand-600 uppercase tracking-wider">Concluídos</div>
-                <div class="mt-1 text-2xl font-semibold text-brand-900">{{ $completedCount }}</div>
+                <div class="flex items-center gap-2 text-xs font-medium text-brand-600 uppercase tracking-wider">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Concluídos
+                </div>
+                <div class="mt-1 text-2xl font-semibold text-brand-900 dark:text-brand-100">{{ $completedCount }}</div>
             </div>
             <div class="card-pastel border-l-4 border-orange-400">
-                <div class="text-xs font-medium text-orange-600 uppercase tracking-wider">Pendentes</div>
-                <div class="mt-1 text-2xl font-semibold text-orange-700">{{ $pendingCount }}</div>
+                <div class="flex items-center gap-2 text-xs font-medium text-orange-600 uppercase tracking-wider">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Pendentes
+                </div>
+                <div class="mt-1 text-2xl font-semibold text-orange-700 dark:text-orange-300">{{ $pendingCount }}</div>
             </div>
             <div class="card-pastel border-l-4 border-red-400">
-                <div class="text-xs font-medium text-red-600 uppercase tracking-wider">Cancelados</div>
-                <div class="mt-1 text-2xl font-semibold text-red-700">{{ $cancelledCount }}</div>
+                <div class="flex items-center gap-2 text-xs font-medium text-red-600 uppercase tracking-wider">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    Cancelados
+                </div>
+                <div class="mt-1 text-2xl font-semibold text-red-700 dark:text-red-300">{{ $cancelledCount }}</div>
             </div>
             <div class="card-pastel border-l-4 border-emerald-400">
-                <div class="text-xs font-medium text-emerald-600 uppercase tracking-wider">Faturamento</div>
-                <div class="mt-1 text-2xl font-semibold text-emerald-700">R$ {{ number_format($revenue, 2, ',', '.') }}</div>
+                <div class="flex items-center gap-2 text-xs font-medium text-emerald-600 uppercase tracking-wider">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Faturamento
+                </div>
+                <div class="mt-1 text-2xl font-semibold text-emerald-700 dark:text-emerald-300">R$ {{ number_format($revenue, 2, ',', '.') }}</div>
             </div>
             <div class="card-pastel border-l-4 border-violet-400">
-                <div class="text-xs font-medium text-violet-600 uppercase tracking-wider">Ticket Médio</div>
-                <div class="mt-1 text-2xl font-semibold text-violet-700">R$ {{ number_format($avgTicket, 2, ',', '.') }}</div>
+                <div class="flex items-center gap-2 text-xs font-medium text-violet-600 uppercase tracking-wider">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    Ticket Médio
+                </div>
+                <div class="mt-1 text-2xl font-semibold text-violet-700 dark:text-violet-300">R$ {{ number_format($avgTicket, 2, ',', '.') }}</div>
             </div>
             <div class="card-pastel border-l-4 border-sky-400">
-                <div class="text-xs font-medium text-sky-600 uppercase tracking-wider">Clientes Atend.</div>
-                <div class="mt-1 text-2xl font-semibold text-sky-700">{{ $uniqueCustomers }}</div>
+                <div class="flex items-center gap-2 text-xs font-medium text-sky-600 uppercase tracking-wider">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Clientes Atend.
+                </div>
+                <div class="mt-1 text-2xl font-semibold text-sky-700 dark:text-sky-300">{{ $uniqueCustomers }}</div>
             </div>
         </div>
 
@@ -131,7 +149,10 @@
                 @if($topServices->count() > 0)
                     <canvas id="servicesChart" height="200"></canvas>
                 @else
-                    <p class="text-brand-400 text-center py-8">Nenhum serviço realizado no período.</p>
+                    <div class="text-center py-8">
+                        <svg class="w-12 h-12 mx-auto mb-3 text-brand-300 dark:text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                        <p class="text-brand-400 dark:text-brand-500 text-sm">Nenhum serviço realizado no período.</p>
+                    </div>
                 @endif
             </div>
         </div>
@@ -151,32 +172,15 @@
                                     {{ $app->services->pluck('name')->implode(', ') ?: $app->service->name }}
                                 </span>
                             </div>
-                            <span class="badge-pastel shrink-0 ml-2
-                                @switch($app->status)
-                                    @case('scheduled') bg-blue-100 text-blue-700 @break
-                                    @case('confirmed') bg-emerald-100 text-emerald-700 @break
-                                    @case('in_progress') bg-amber-100 text-amber-700 @break
-                                    @case('completed') bg-stone-100 text-stone-700 @break
-                                    @case('cancelled') bg-red-100 text-red-700 @break
-                                    @case('no_show') bg-gray-200 text-gray-600 @break
-                                    @default bg-stone-100 text-stone-600
-                                @endswitch
-                            ">
-                                @switch($app->status)
-                                    @case('scheduled') Agendado @break
-                                    @case('confirmed') Confirmado @break
-                                    @case('in_progress') Em Andamento @break
-                                    @case('completed') Concluído @break
-                                    @case('cancelled') Cancelado @break
-                                    @case('no_show') Não Compareceu @break
-                                    @default {{ $app->status }}
-                                @endswitch
-                            </span>
+                            <x-status-badge :status="$app->status" class="shrink-0 ml-2" />
                         </li>
                         @endforeach
                     </ul>
                 @else
-                    <p class="text-brand-400 text-center py-8">Nenhum atendimento hoje.</p>
+                    <div class="text-center py-8">
+                        <svg class="w-12 h-12 mx-auto mb-3 text-brand-300 dark:text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <p class="text-brand-400 dark:text-brand-500 text-sm">Nenhum atendimento hoje.</p>
+                    </div>
                 @endif
             </div>
 
@@ -194,26 +198,15 @@
                                 </span>
                                 <div class="text-xs text-brand-400 mt-0.5 ml-1">{{ $app->user->name }}</div>
                             </div>
-                            <span class="badge-pastel shrink-0 ml-2
-                                @switch($app->status)
-                                    @case('scheduled') bg-blue-100 text-blue-700 @break
-                                    @case('confirmed') bg-emerald-100 text-emerald-700 @break
-                                    @case('in_progress') bg-amber-100 text-amber-700 @break
-                                    @default bg-stone-100 text-stone-600
-                                @endswitch
-                            ">
-                                @switch($app->status)
-                                    @case('scheduled') Agendado @break
-                                    @case('confirmed') Confirmado @break
-                                    @case('in_progress') Em Andamento @break
-                                    @default {{ $app->status }}
-                                @endswitch
-                            </span>
+                            <x-status-badge :status="$app->status" class="shrink-0 ml-2" />
                         </li>
                         @endforeach
                     </ul>
                 @else
-                    <p class="text-brand-400 text-center py-8">Nenhum agendamento futuro.</p>
+                    <div class="text-center py-8">
+                        <svg class="w-12 h-12 mx-auto mb-3 text-brand-300 dark:text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <p class="text-brand-400 dark:text-brand-500 text-sm">Nenhum agendamento futuro.</p>
+                    </div>
                 @endif
             </div>
         </div>
@@ -251,7 +244,10 @@
                         @endforeach
                     </ul>
                 @else
-                    <p class="text-brand-400 text-center py-4">Nenhum aniversariante este mês.</p>
+                    <div class="text-center py-4">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-brand-300 dark:text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0A1.5 1.5 0 003 15.546M12 2v4m0 0a2 2 0 100 4 2 2 0 000-4z"/></svg>
+                        <p class="text-brand-400 dark:text-brand-500 text-sm">Nenhum aniversariante este mês.</p>
+                    </div>
                 @endif
             </div>
         </div>
@@ -331,6 +327,10 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+var isDark = document.documentElement.classList.contains('dark');
+var gridColor = isDark ? '#44403c' : '#E8EDDB';
+var textColor = isDark ? '#a8a29e' : '#78716c';
+
 new Chart(document.getElementById('revenueChart'), {
     type: 'bar',
     data: {
@@ -338,14 +338,17 @@ new Chart(document.getElementById('revenueChart'), {
         datasets: [{
             label: 'Faturamento (R$)',
             data: @json(array_column($chartData, 'value')),
-            backgroundColor: ['#fbbf24', '#fcd34d', '#fde68a', '#f59e0b', '#fbbf24', '#fcd34d', '#fde68a'],
+            backgroundColor: ['#959E7D', '#AFB796', '#BAC893', '#7B8564', '#959E7D', '#AFB796', '#BAC893'],
             borderRadius: 6,
         }]
     },
     options: {
         responsive: true,
         plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, grid: { color: '#fef3c7' } } }
+        scales: {
+            y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
+            x: { ticks: { color: textColor } }
+        }
     }
 });
 
@@ -357,7 +360,7 @@ new Chart(document.getElementById('servicesChart'), {
         datasets: [{
             data: @json($topServices->pluck('total')),
             backgroundColor: [
-                '#7B8564', '#D4A373', '#A8B5A0', '#C9A96E', '#8EA1A0'
+                '#7B8564', '#959E7D', '#AFB796', '#BAC893', '#616C4B'
             ],
             borderWidth: 0,
         }]
@@ -367,7 +370,7 @@ new Chart(document.getElementById('servicesChart'), {
         plugins: {
             legend: {
                 position: 'bottom',
-                labels: { padding: 12, usePointStyle: true, font: { size: 12 } }
+                labels: { padding: 12, usePointStyle: true, font: { size: 12 }, color: textColor }
             }
         }
     }
@@ -382,7 +385,7 @@ new Chart(document.getElementById('profChart'), {
         datasets: [{
             label: 'Atendimentos',
             data: @json($profPerformance->pluck('appointments_count')),
-            backgroundColor: ['#7B8564', '#D4A373', '#A8B5A0', '#C9A96E', '#8EA1A0', '#B8A9C4'],
+            backgroundColor: ['#7B8564', '#959E7D', '#AFB796', '#BAC893', '#616C4B', '#D1DAB7'],
             borderRadius: 6,
         }]
     },
@@ -391,8 +394,8 @@ new Chart(document.getElementById('profChart'), {
         responsive: true,
         plugins: { legend: { display: false } },
         scales: {
-            x: { beginAtZero: true, grid: { color: '#f5f0e8' }, ticks: { stepSize: 1 } },
-            y: { grid: { display: false } }
+            x: { beginAtZero: true, grid: { color: gridColor }, ticks: { stepSize: 1, color: textColor } },
+            y: { grid: { display: false }, ticks: { color: textColor } }
         }
     }
 });

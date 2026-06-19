@@ -20,4 +20,8 @@
     .table-pastel th { @apply px-4 py-3 font-semibold text-brand-700 dark:text-brand-300; }
     .table-pastel tbody tr { @apply border-t border-brand-100/50 hover:bg-brand-50/50 transition-colors dark:border-stone-700 dark:hover:bg-stone-700/50; }
     .badge-pastel { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium; }
+    .select-pastel { @apply block w-full rounded-lg border-brand-200 bg-white/80 shadow-sm text-sm text-stone-700 focus:border-brand-400 focus:ring focus:ring-brand-200 focus:ring-opacity-50 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-200 dark:focus:border-brand-400; }
+    .empty-state { @apply text-center py-8; }
+    .empty-state svg { @apply w-12 h-12 mx-auto mb-3 text-brand-300 dark:text-brand-600; }
+    .empty-state p { @apply text-brand-400 dark:text-brand-500 text-sm; }
 }

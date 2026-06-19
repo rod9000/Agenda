@@ -23,7 +23,7 @@
                 @endforeach
             </select>
         </div>
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4">
+        <div class="bg-white dark:bg-stone-800 overflow-hidden shadow-sm sm:rounded-lg p-4">
             <div id="calendar"></div>
         </div>
     </div>
@@ -91,6 +91,42 @@
         accent-color: #7B8564;
         flex-shrink: 0;
     }
+
+    /* Dark mode */
+    .dark .sel-trigger { background: #44403c; border-color: #57534e; color: #d6d3d1; }
+    .dark .sel-trigger:hover { border-color: #7B8564; }
+    .dark .sel-trigger.open { border-color: #7B8564; box-shadow: 0 0 0 3px rgba(123,133,100,0.2); }
+    .dark .sel-trigger .arrow { color: #78716c; }
+    .dark .sel-trigger .selected-text { color: #e7e5e4; }
+    .dark .sel-trigger .placeholder-text { color: #78716c; }
+    .dark .sel-dropdown { background: #292524; border-color: #57534e; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    .dark .sel-search { background: #292524; color: #d6d3d1; border-bottom-color: #44403c; }
+    .dark .sel-search:focus { background: #1c1917; }
+    .dark .sel-option { color: #d6d3d1; }
+    .dark .sel-option:hover { background: #44403c; }
+    .dark .sel-option.selected { background: rgba(123,133,100,0.2); color: #AFB796; }
+    .dark .sel-option-multi { color: #d6d3d1; }
+    .dark .sel-option-multi:hover { background: #44403c; }
+    .dark .sel-option-multi.selected { background: rgba(123,133,100,0.2); color: #AFB796; }
+
+    /* FullCalendar dark mode */
+    .dark .fc { background: #1c1917; color: #d6d3d1; }
+    .dark .fc-toolbar-title { color: #e7e5e4; }
+    .dark .fc-button { background: #44403c; border-color: #57534e; color: #d6d3d1; }
+    .dark .fc-button:hover { background: #57534e; }
+    .dark .fc-button-active { background: #7B8564 !important; border-color: #7B8564 !important; color: #fff !important; }
+    .dark .fc-daygrid-day { background: #292524; }
+    .dark .fc-daygrid-day:hover { background: #44403c; }
+    .dark .fc-daygrid-day-number { color: #d6d3d1; }
+    .dark .fc-col-header-cell { background: #292524; color: #a8a29e; border-color: #44403c; }
+    .dark .fc-timegrid-slot { border-color: #44403c; }
+    .dark .fc-timegrid-slot-label { color: #78716c; }
+    .dark .fc-scrollgrid { border-color: #44403c; }
+    .dark .fc-theme-standard td, .dark .fc-theme-standard th { border-color: #44403c; }
+    .dark .fc-event { border-color: rgba(123,133,100,0.5); }
+    .dark .fc-day-today { background: rgba(123,133,100,0.1) !important; }
+    .dark .fc-timegrid-now-indicator-line { border-color: #ef4444; }
+    .dark .fc-timegrid-now-indicator-arrow { border-color: #ef4444; }
 </style>
 @endpush
 

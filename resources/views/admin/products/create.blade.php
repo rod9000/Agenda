@@ -16,43 +16,51 @@
                 @if(isset($product)) @method('PUT') @endif
 
                 <div class="mb-4">
-                    <label class="label">Nome</label>
-                    <input type="text" name="name" value="{{ old('name', $product->name ?? '') }}" required class="input-pastel">
+                    <label class="block text-sm font-medium text-brand-700 mb-1">Nome</label>
+                    <input type="text" name="name" value="{{ old('name') }}" required class="input-pastel">
+                    @error('name') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="mb-4">
-                    <label class="label">Marca</label>
-                    <input type="text" name="brand" value="{{ old('brand', $product->brand ?? '') }}" class="input-pastel">
+                    <label class="block text-sm font-medium text-brand-700 mb-1">Marca</label>
+                    <input type="text" name="brand" value="{{ old('brand') }}" class="input-pastel">
+                    @error('brand') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="mb-4">
-                    <label class="label">Validade</label>
-                    <input type="date" name="expiry_date" value="{{ old('expiry_date', $product->expiry_date?->format('Y-m-d') ?? '') }}" class="input-pastel">
+                    <label class="block text-sm font-medium text-brand-700 mb-1">Validade</label>
+                    <input type="date" name="expiry_date" value="{{ old('expiry_date') }}" class="input-pastel">
+                    @error('expiry_date') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="mb-4">
-                    <label class="label">Preço de Compra</label>
-                    <input type="number" step="0.01" name="purchase_price" value="{{ old('purchase_price', $product->purchase_price ?? '') }}" required class="input-pastel">
+                    <label class="block text-sm font-medium text-brand-700 mb-1">Preço de Compra</label>
+                    <input type="number" step="0.01" min="0" name="purchase_price" value="{{ old('purchase_price') }}" required class="input-pastel">
+                    @error('purchase_price') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="mb-4">
-                    <label class="label">Preço de Venda</label>
-                    <input type="number" step="0.01" name="sale_price" value="{{ old('sale_price', $product->sale_price ?? '') }}" class="input-pastel">
+                    <label class="block text-sm font-medium text-brand-700 mb-1">Preço de Venda</label>
+                    <input type="number" step="0.01" min="0" name="sale_price" value="{{ old('sale_price') }}" class="input-pastel">
+                    @error('sale_price') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="mb-4">
-                    <label class="label">Quantidade em Estoque</label>
-                    <input type="number" name="quantity" value="{{ old('quantity', $product->quantity ?? 0) }}" min="0" class="input-pastel">
+                    <label class="block text-sm font-medium text-brand-700 mb-1">Quantidade em Estoque</label>
+                    <input type="number" name="quantity" value="{{ old('quantity', 0) }}" min="0" class="input-pastel">
+                    @error('quantity') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="mb-4">
-                    <label class="label">Estoque Mínimo (alerta)</label>
-                    <input type="number" name="min_stock" value="{{ old('min_stock', $product->min_stock ?? 0) }}" min="0" class="input-pastel">
+                    <label class="block text-sm font-medium text-brand-700 mb-1">Estoque Mínimo (alerta)</label>
+                    <input type="number" name="min_stock" value="{{ old('min_stock', 0) }}" min="0" class="input-pastel">
+                    @error('min_stock') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="mb-4">
-                    <label class="label">Fornecedor</label>
-                    <input type="text" name="supplier" value="{{ old('supplier', $product->supplier ?? '') }}" class="input-pastel">
+                    <label class="block text-sm font-medium text-brand-700 mb-1">Fornecedor</label>
+                    <input type="text" name="supplier" value="{{ old('supplier') }}" class="input-pastel">
+                    @error('supplier') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="flex justify-end gap-2">
