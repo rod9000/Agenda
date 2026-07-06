@@ -89,6 +89,36 @@
                             </x-slot>
                         </x-dropdown>
                     </div>
+                    <div class="inline-flex items-center">
+                        <x-dropdown align="center" width="48">
+                            <x-slot name="trigger">
+                                <button class="inline-flex items-center gap-1 px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-brand-600 hover:border-brand-300 focus:outline-none focus:text-brand-600 focus:border-brand-300 transition duration-150 ease-in-out dark:text-stone-400 dark:hover:text-brand-400 dark:hover:border-brand-600 dark:focus:text-brand-400 dark:focus:border-brand-600 @if(request()->routeIs('admin.settings.evolution*') || request()->routeIs('admin.settings.bot*') || request()->routeIs('admin.bot-messages*') || request()->routeIs('admin.blocked-numbers*') || request()->routeIs('admin.webhook-logs*')) border-brand-400 text-brand-900 @endif">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                                    <span>WhatsApp</span>
+                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </x-slot>
+                            <x-slot name="content">
+                                <x-dropdown-link :href="route('admin.settings.evolution')" :active="request()->routeIs('admin.settings.evolution')">
+                                    Evolution API
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('admin.settings.bot')" :active="request()->routeIs('admin.settings.bot')">
+                                    Configurar Bot
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('admin.bot-messages.index')" :active="request()->routeIs('admin.bot-messages.*')">
+                                    Mensagens do Bot
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('admin.blocked-numbers.index')" :active="request()->routeIs('admin.blocked-numbers.*')">
+                                    Bloquear Números
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('admin.webhook-logs.index')" :active="request()->routeIs('admin.webhook-logs.*')">
+                                    Webhooks
+                                </x-dropdown-link>
+                            </x-slot>
+                        </x-dropdown>
+                    </div>
                     <x-nav-link :href="route('admin.loyalty.index')" :active="request()->routeIs('admin.loyalty.*')">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
                         Fidelidade
@@ -196,6 +226,24 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.settings.working-hours')" :active="request()->routeIs('admin.settings.*')">
                     Horários
+                </x-responsive-nav-link>
+            </div>
+            <div class="pt-2 pb-1">
+                <div class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider dark:text-stone-500">WhatsApp</div>
+                <x-responsive-nav-link :href="route('admin.settings.evolution')" :active="request()->routeIs('admin.settings.evolution*')">
+                    Evolution API
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.settings.bot')" :active="request()->routeIs('admin.settings.bot*')">
+                    Configurar Bot
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.bot-messages.index')" :active="request()->routeIs('admin.bot-messages.*')">
+                    Mensagens do Bot
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.blocked-numbers.index')" :active="request()->routeIs('admin.blocked-numbers.*')">
+                    Bloquear Números
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.webhook-logs.index')" :active="request()->routeIs('admin.webhook-logs.*')">
+                    Webhooks
                 </x-responsive-nav-link>
             </div>
             <x-responsive-nav-link :href="route('admin.loyalty.index')" :active="request()->routeIs('admin.loyalty.*')">

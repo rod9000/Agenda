@@ -159,11 +159,40 @@ files = [
     ("app/Models/LoyaltyReward.php", "/htdocs/app/Models/LoyaltyReward.php"),
     ("app/Models/LoyaltyRedemption.php", "/htdocs/app/Models/LoyaltyRedemption.php"),
 
+    # Bot/Evolution migrations
+    ("database/migrations/2026_06_19_000003_create_conversations_table.php", "/htdocs/database/migrations/2026_06_19_000003_create_conversations_table.php"),
+    ("database/migrations/2026_06_19_000004_create_bot_messages_table.php", "/htdocs/database/migrations/2026_06_19_000004_create_bot_messages_table.php"),
+    ("database/migrations/2026_06_19_000005_create_receive_webhooks_table.php", "/htdocs/database/migrations/2026_06_19_000005_create_receive_webhooks_table.php"),
+    ("database/migrations/2026_06_19_000006_create_bot_menu_items_table.php", "/htdocs/database/migrations/2026_06_19_000006_create_bot_menu_items_table.php"),
+    ("database/migrations/2026_06_19_000007_create_blocked_numbers_table.php", "/htdocs/database/migrations/2026_06_19_000007_create_blocked_numbers_table.php"),
+
     # Env (locale .env.ftp -> servidor .env)
     (".env.ftp", "/htdocs/.env"),
 
     # Migration trigger
     ("_migrate.php", "/htdocs/_migrate.php"),
+
+    # Evolution API + Bot + Webhook + Blocked Numbers
+    ("app/Http/Controllers/Admin/EvolutionController.php", "/htdocs/app/Http/Controllers/Admin/EvolutionController.php"),
+    ("app/Http/Controllers/Admin/BotController.php", "/htdocs/app/Http/Controllers/Admin/BotController.php"),
+    ("app/Http/Controllers/Admin/BotMenuController.php", "/htdocs/app/Http/Controllers/Admin/BotMenuController.php"),
+    ("app/Http/Controllers/Admin/BotMessagesController.php", "/htdocs/app/Http/Controllers/Admin/BotMessagesController.php"),
+    ("app/Http/Controllers/Admin/WebhookLogController.php", "/htdocs/app/Http/Controllers/Admin/WebhookLogController.php"),
+    ("app/Http/Controllers/Admin/BlockedNumberController.php", "/htdocs/app/Http/Controllers/Admin/BlockedNumberController.php"),
+    ("app/Models/Company.php", "/htdocs/app/Models/Company.php"),
+    ("app/Models/Conversation.php", "/htdocs/app/Models/Conversation.php"),
+    ("app/Models/BotMessage.php", "/htdocs/app/Models/BotMessage.php"),
+    ("app/Models/BotMenuItem.php", "/htdocs/app/Models/BotMenuItem.php"),
+    ("app/Models/ReceiveWebhook.php", "/htdocs/app/Models/ReceiveWebhook.php"),
+    ("app/Models/BlockedNumber.php", "/htdocs/app/Models/BlockedNumber.php"),
+    ("resources/views/admin/settings/evolution.blade.php", "/htdocs/resources/views/admin/settings/evolution.blade.php"),
+    ("resources/views/admin/settings/bot.blade.php", "/htdocs/resources/views/admin/settings/bot.blade.php"),
+    ("resources/views/admin/settings/bot-menu.blade.php", "/htdocs/resources/views/admin/settings/bot-menu.blade.php"),
+    ("resources/views/admin/settings/webhook-logs.blade.php", "/htdocs/resources/views/admin/settings/webhook-logs.blade.php"),
+    ("resources/views/admin/settings/webhook-detail.blade.php", "/htdocs/resources/views/admin/settings/webhook-detail.blade.php"),
+    ("resources/views/admin/settings/blocked-numbers.blade.php", "/htdocs/resources/views/admin/settings/blocked-numbers.blade.php"),
+    ("resources/views/admin/bot-messages/index.blade.php", "/htdocs/resources/views/admin/bot-messages/index.blade.php"),
+    ("resources/views/admin/bot-messages/show.blade.php", "/htdocs/resources/views/admin/bot-messages/show.blade.php"),
 
     # Cache cleanup (emergency)
     ("_clear_cache.php", "/htdocs/_clear_cache.php"),

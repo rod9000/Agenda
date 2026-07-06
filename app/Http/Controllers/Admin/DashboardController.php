@@ -151,9 +151,13 @@ class DashboardController extends Controller
 
         // --- Dia da semana mais movimentado ---
         $dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+        $dayExpr = DB::getDriverName() === 'sqlite'
+            ? "strftime('%w', start)"
+            : "DAYOFWEEK(start) - 1";
+
         $dayCounts = Appointment::where('status', 'completed')
             ->whereBetween('start', [$periodStart, $periodEnd])
-            ->selectRaw('WEEKDAY(start) as day_index, COUNT(*) as total')
+            ->selectRaw("{$dayExpr} as day_index, COUNT(*) as total")
             ->groupBy('day_index')
             ->orderByDesc('total')
             ->pluck('total', 'day_index');
@@ -217,10 +221,14 @@ class DashboardController extends Controller
         $weekStart = Carbon::now()->startOfWeek();
         $weekEnd = Carbon::now()->endOfWeek();
 
+        $dayExpr = DB::getDriverName() === 'sqlite'
+            ? "strftime('%w', start)"
+            : "DAYOFWEEK(start) - 1";
+
         $revenueByDay = Appointment::where('status', 'completed')
             ->whereBetween('start', [$weekStart, $weekEnd])
             ->join('appointment_service', 'appointments.id', '=', 'appointment_service.appointment_id')
-            ->selectRaw('WEEKDAY(start) as day_index, SUM(appointment_service.price) as total')
+            ->selectRaw("{$dayExpr} as day_index, SUM(appointment_service.price) as total")
             ->groupBy('day_index')
             ->pluck('total', 'day_index');
 

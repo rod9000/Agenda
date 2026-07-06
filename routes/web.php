@@ -16,6 +16,12 @@ use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\LoyaltyController;
 use App\Http\Controllers\Admin\MigrationController;
+use App\Http\Controllers\Admin\EvolutionController;
+use App\Http\Controllers\Admin\BotController;
+use App\Http\Controllers\Admin\BotMenuController;
+use App\Http\Controllers\Admin\BotMessagesController;
+use App\Http\Controllers\Admin\WebhookLogController;
+use App\Http\Controllers\Admin\BlockedNumberController;
 
 Route::get('/', function () {
     if (auth()->check()) {
@@ -39,6 +45,34 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('settings/blocked-slots', [SettingsController::class, 'blockedSlots'])->name('settings.blocked-slots');
     Route::post('settings/blocked-slots', [SettingsController::class, 'blockedSlotsStore'])->name('settings.blocked-slots.store');
     Route::delete('settings/blocked-slots/{blockedSlot}', [SettingsController::class, 'blockedSlotsDestroy'])->name('settings.blocked-slots.destroy');
+
+    Route::get('settings/evolution', [EvolutionController::class, 'index'])->name('settings.evolution');
+    Route::post('settings/evolution', [EvolutionController::class, 'store'])->name('settings.evolution.store');
+    Route::post('settings/evolution/connect', [EvolutionController::class, 'connect'])->name('settings.evolution.connect');
+    Route::get('settings/evolution/status', [EvolutionController::class, 'status'])->name('settings.evolution.status');
+    Route::post('settings/evolution/disconnect', [EvolutionController::class, 'disconnect'])->name('settings.evolution.disconnect');
+    Route::post('settings/evolution/set-webhook', [EvolutionController::class, 'setWebhook'])->name('settings.evolution.set-webhook');
+
+    Route::get('settings/bot', [BotController::class, 'index'])->name('settings.bot');
+    Route::post('settings/bot', [BotController::class, 'store'])->name('settings.bot.store');
+
+    Route::get('bot-menu', [BotMenuController::class, 'index'])->name('bot-menu.index');
+    Route::post('bot-menu', [BotMenuController::class, 'store'])->name('bot-menu.store');
+    Route::put('bot-menu/{menuItem}', [BotMenuController::class, 'update'])->name('bot-menu.update');
+    Route::delete('bot-menu/{menuItem}', [BotMenuController::class, 'destroy'])->name('bot-menu.destroy');
+
+    Route::get('webhook-logs', [WebhookLogController::class, 'index'])->name('webhook-logs.index');
+    Route::get('webhook-logs/{webhook}', [WebhookLogController::class, 'show'])->name('webhook-logs.show');
+
+    Route::get('bot-messages', [BotMessagesController::class, 'index'])->name('bot-messages.index');
+    Route::get('bot-messages/{conversation}', [BotMessagesController::class, 'show'])->name('bot-messages.show');
+    Route::post('bot-messages/{conversation}/send', [BotMessagesController::class, 'send'])->name('bot-messages.send');
+    Route::post('bot-messages/start', [BotMessagesController::class, 'startConversation'])->name('bot-messages.start');
+    Route::post('bot-messages/sync', [BotMessagesController::class, 'sync'])->name('bot-messages.sync');
+
+    Route::get('blocked-numbers', [BlockedNumberController::class, 'index'])->name('blocked-numbers.index');
+    Route::post('blocked-numbers', [BlockedNumberController::class, 'store'])->name('blocked-numbers.store');
+    Route::delete('blocked-numbers/{blockedNumber}', [BlockedNumberController::class, 'destroy'])->name('blocked-numbers.destroy');
 
     Route::get('products/movements', [ProductController::class, 'movements'])->name('products.movements');
     Route::get('products/stock-report', [ProductController::class, 'stockReport'])->name('products.stock-report');
