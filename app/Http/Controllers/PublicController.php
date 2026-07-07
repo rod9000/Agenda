@@ -29,11 +29,10 @@ class PublicController extends Controller
         }
 
         $customers = Customer::where(function ($q) use ($query) {
-            $q->where('name', 'like', "%{$query}%")
-              ->orWhere('phone', 'like', "%{$query}%")
-              ->orWhere('cpf', 'like', "%{$query}%")
-              ->orWhereRaw("REPLACE(REPLACE(REPLACE(cpf, '.', ''), '-', ''), ' ', '') LIKE ?", ["%{$query}%"]);
-        })->orderBy('name')->get(['id', 'name', 'cpf', 'phone', 'email']);
+            $q->where('phone', 'like', "%{$query}%")
+              ->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(phone, ' ', ''), '-', ''), '(', ''), ')', '') LIKE ?", ["%{$query}%"])
+              ->orWhere('name', 'like', "%{$query}%");
+        })->orderBy('name')->get(['id', 'name', 'phone', 'email']);
 
         return response()->json(['customers' => $customers]);
     }
@@ -115,16 +114,16 @@ class PublicController extends Controller
         if ($request->get('action') === 'register_customer') {
             $data = $request->validate([
                 'name'  => 'required|string|max:100',
-                'cpf'   => 'nullable|string|max:20',
-                'phone' => 'nullable|string|max:20',
+                'phone' => 'required|string|max:20',
                 'email' => 'nullable|email|max:100',
             ]);
 
             try {
+                $phone = preg_replace('/\D/', '', $data['phone']);
+
                 $customer = Customer::create([
                     'name'       => $data['name'],
-                    'cpf'        => $data['cpf'] ?? null,
-                    'phone'      => $data['phone'] ?? '',
+                    'phone'      => $phone,
                     'email'      => $data['email'] ?? null,
                     'birth_date' => now()->subYears(18),
                     'created_by' => User::where('role', 'admin')->value('id') ?? 1,
@@ -135,7 +134,6 @@ class PublicController extends Controller
                     'customer' => [
                         'id'    => $customer->id,
                         'name'  => $customer->name,
-                        'cpf'   => $customer->cpf,
                         'phone' => $customer->phone,
                         'email' => $customer->email,
                     ],
