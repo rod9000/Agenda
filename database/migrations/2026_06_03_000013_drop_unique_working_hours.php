@@ -9,6 +9,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('working_hours', function (Blueprint $table) {
+            $table->index('user_id');
             $table->dropUnique(['user_id', 'day_of_week']);
         });
     }
