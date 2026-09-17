@@ -19,8 +19,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Enable Apache modules
 RUN a2enmod rewrite headers
 
-# Fix MPM conflict
-RUN echo "# disabled" > /etc/apache2/mods-enabled/mpm_event.load
+# Disable mpm_event and use mpm_prefork instead
+RUN a2dismod mpm_event && a2enmod mpm_prefork
 
 # Set working directory
 WORKDIR /var/www/html
