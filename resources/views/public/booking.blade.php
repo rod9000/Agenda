@@ -96,7 +96,7 @@
                         {{-- STEP 1: Buscar ou Cadastrar Cliente --}}
                         <div id="step1" class="step-content step-enter">
                             <h2 class="text-lg font-semibold text-stone-800 dark:text-stone-100 mb-1">Identifique-se</h2>
-                            <p class="text-sm text-stone-400 dark:text-stone-500 mb-5">Informe seu nome e CPF para continuar</p>
+                            <p class="text-sm text-stone-400 dark:text-stone-500 mb-5">Informe seu nome e telefone para continuar</p>
 
                             <div class="space-y-4">
                                 <div>

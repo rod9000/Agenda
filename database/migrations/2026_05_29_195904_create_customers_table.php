@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
-            $table->string('cpf', 14)->unique();
+            $table->string('cpf', 14)->nullable()->unique();
             $table->string('phone', 20);
             $table->date('birth_date');
             $table->string('email', 100)->nullable();

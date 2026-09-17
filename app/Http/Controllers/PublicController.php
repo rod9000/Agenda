@@ -139,9 +139,11 @@ class PublicController extends Controller
                     ],
                 ]);
             } catch (\Exception $e) {
+                \Log::error('Erro ao cadastrar cliente público: ' . $e->getMessage());
+
                 return response()->json([
                     'success' => false,
-                    'message' => 'Erro ao cadastrar: ' . $e->getMessage(),
+                    'message' => 'Erro ao cadastrar cliente. Tente novamente ou entre em contato.',
                 ], 422);
             }
         }
