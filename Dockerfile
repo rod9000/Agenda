@@ -16,8 +16,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Enable Apache modules
-RUN a2enmod rewrite headers
+# Enable Apache modules, ensure only mpm_event (static) is active
+RUN a2enmod rewrite headers \
+    && rm -f /etc/apache2/mods-enabled/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.conf \
+    && rm -f /etc/apache2/mods-enabled/mpm_worker.load /etc/apache2/mods-enabled/mpm_worker.conf
 
 # Set working directory
 WORKDIR /var/www/html
